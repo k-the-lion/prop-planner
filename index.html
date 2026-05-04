@@ -548,6 +548,31 @@
             margin-top: 1rem;
         }
 
+        .payout-results-grid.timeline-grid {
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 500px) {
+            .payout-results-grid.timeline-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .timeline-banner {
+            font-size: 0.78rem;
+            line-height: 1.45;
+            color: #94a3b8;
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid #334155;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .timeline-banner strong {
+            color: #e2e8f0;
+        }
+
         .payout-card {
             background: #0f172a;
             padding: 1rem;
@@ -726,6 +751,14 @@
                 <input type="number" id="activationFeeAmount" placeholder="e.g. 100" value="0" min="0" oninput="calculate()">
             </div>
 
+            <div class="input-group full-width">
+                <label for="evalProfitTarget">
+                    Eval gross profit to pass ($, per account)
+                    <div class="tooltip">?<span class="tooltip-text">Total gross profit your firm requires on the evaluation account to pass (combined profit target, simplified). Used to estimate how long you stay in eval and how many subscription months you pay. Does not model consistency rules or resets.</span></div>
+                </label>
+                <input type="number" id="evalProfitTarget" placeholder="e.g. 3000" value="0" min="0" step="1" oninput="calculate()">
+            </div>
+
             <p class="costs-footnote" id="costsFootnote"></p>
         </div>
     </details>
@@ -814,6 +847,28 @@
                     <td id="dashNetPerAccMo">—</td>
                     <td id="dashNetTotalMo">—</td>
                 </tr>
+                <tr>
+                    <td>Eval: trading days to pass (gross)</td>
+                    <td id="dashEvalDaysPerAcc" colspan="2" style="text-align: right;">—</td>
+                </tr>
+                <tr>
+                    <td>Eval: est. subscription months to pay</td>
+                    <td id="dashEvalSubMonthsPerAcc">—</td>
+                    <td id="dashEvalSubMonthsTotal">—</td>
+                </tr>
+                <tr>
+                    <td>Eval: est. subscription cost until pass</td>
+                    <td id="dashEvalSubCostPerAcc">—</td>
+                    <td id="dashEvalSubCostTotal">—</td>
+                </tr>
+                <tr>
+                    <td>Funded ($0): days to 1st payout plan</td>
+                    <td id="dashFundedDaysPerAcc" colspan="2" style="text-align: right;">—</td>
+                </tr>
+                <tr>
+                    <td><span class="dash-strong">Path: eval + funded to 1st payout (days)</span></td>
+                    <td id="dashPathPerAcc" colspan="2" style="text-align: right;" class="dash-strong">—</td>
+                </tr>
             </tbody>
         </table>
         <p class="dashboard-note" id="dashboardNote">Subscription is per calendar month. Trading income uses your trading days per month setting.</p>
@@ -842,18 +897,22 @@
         <summary>Advanced: Payouts &amp; Drawdown Risk</summary>
         <div class="planner-content">
 
+            <div class="timeline-banner" id="timelineBanner">
+                <strong>Funded reset:</strong> After you pass, the funded account is modeled starting at <strong>$0</strong> profit. Buffer + first payout only build from <strong>new</strong> funded gross edge. Eval length uses <strong>Eval gross profit to pass</strong> in Firm costs.
+            </div>
+
             <div class="input-grid">
                 <div class="input-group">
                     <label for="bufferAmount">
-                        Account Buffer ($)
-                        <div class="tooltip">?<span class="tooltip-text">The safety cushion you want to build in your account before making your first withdrawal.</span></div>
+                        Buffer on funded ($, gross)
+                        <div class="tooltip">?<span class="tooltip-text">Gross profit to retain on the funded account before your first withdrawal. After pass, funded starts at $0; this builds from new funded trading only.</span></div>
                     </label>
                     <input type="number" id="bufferAmount" placeholder="e.g. 2000" value="2000" oninput="calculate()">
                 </div>
                 <div class="input-group">
                     <label for="firstPayout">
-                        First Payout ($)
-                        <div class="tooltip">?<span class="tooltip-text">The gross amount you intend to withdraw for your very first payout.</span></div>
+                        First payout ($, gross)
+                        <div class="tooltip">?<span class="tooltip-text">Gross amount for your first withdrawal after buffer is met on the funded account.</span></div>
                     </label>
                     <input type="number" id="firstPayout" placeholder="e.g. 500" value="500" oninput="calculate()">
                 </div>
@@ -876,14 +935,18 @@
                 </div>
             </div>
 
-            <div class="payout-results-grid">
+            <div class="payout-results-grid timeline-grid">
                 <div class="payout-card">
-                    <div class="result-label">Time to 1st Payout</div>
-                    <div class="result-value" id="timeToFirst" style="font-size: 1.1rem;">0 Trading Days</div>
+                    <div class="result-label">Eval → pass</div>
+                    <div class="result-value" id="timeToEvalPass" style="font-size: 1rem;">—</div>
                 </div>
                 <div class="payout-card">
-                    <div class="result-label">Recurring Frequency</div>
-                    <div class="result-value" id="timeToRecurring" style="font-size: 1.1rem;">0 Trading Days</div>
+                    <div class="result-label">Funded ($0) → 1st payout</div>
+                    <div class="result-value" id="timeToFirst" style="font-size: 1rem;">—</div>
+                </div>
+                <div class="payout-card">
+                    <div class="result-label">Recurring (funded)</div>
+                    <div class="result-value" id="timeToRecurring" style="font-size: 1rem;">—</div>
                 </div>
             </div>
 
@@ -963,6 +1026,8 @@
             : 0;
         let amortizeMonths = parseInt(document.getElementById('amortizeMonths').value, 10);
         if (Number.isNaN(amortizeMonths) || amortizeMonths < 0) amortizeMonths = 0;
+
+        const evalProfitTarget = parseFloat(document.getElementById('evalProfitTarget').value) || 0;
 
         const lossRate = 100 - winRate;
         const evPerAccount = (profit * (winRate / 100)) - (loss * (lossRate / 100));
@@ -1085,34 +1150,111 @@
         document.getElementById('dashNetPerAccMo').textContent = dashFmt(perAfterMonthly);
         document.getElementById('dashNetTotalMo').textContent = dashFmt(afterRecurringMonthly);
 
+        const firstTargetFunded = buffer + firstPayout;
+        let evalDaysPass = null;
+        let evalSubBillPeriods = 0;
+        let evalSubCostDuringEval = 0;
+        if (evalProfitTarget > 0 && evPerAccount > 0) {
+            evalDaysPass = Math.ceil(evalProfitTarget / evPerAccount);
+            evalSubBillPeriods = Math.ceil(evalDaysPass / TRADING_DAYS_MONTH);
+            if (subscriptionEnabled && monthlySubscription > 0 && accounts > 0) {
+                evalSubCostDuringEval = evalSubBillPeriods * monthlySubscription * accounts;
+            }
+        }
+
+        let daysToFirstFunded = null;
+        let daysToRecurringFunded = null;
+        if (evPerAccount > 0) {
+            daysToFirstFunded = Math.ceil(firstTargetFunded / evPerAccount);
+            daysToRecurringFunded = Math.ceil(recurringPayout / evPerAccount);
+        }
+
+        const subCostPerAccEval = subscriptionEnabled && monthlySubscription > 0 && evalDaysPass != null
+            ? evalSubBillPeriods * monthlySubscription
+            : null;
+
+        if (evalDaysPass == null || evPerAccount <= 0) {
+            document.getElementById('dashEvalDaysPerAcc').textContent = evalProfitTarget <= 0 ? 'Set eval target' : 'N/A (EV ≤ 0)';
+        } else {
+            document.getElementById('dashEvalDaysPerAcc').textContent = `${evalDaysPass} trading days (gross)`;
+        }
+
+        if (evalDaysPass == null) {
+            document.getElementById('dashEvalSubMonthsPerAcc').textContent = '—';
+            document.getElementById('dashEvalSubMonthsTotal').textContent = '—';
+            document.getElementById('dashEvalSubCostPerAcc').textContent = '—';
+            document.getElementById('dashEvalSubCostTotal').textContent = '—';
+        } else {
+            document.getElementById('dashEvalSubMonthsPerAcc').textContent = `${evalSubBillPeriods} mo (est.)`;
+            document.getElementById('dashEvalSubMonthsTotal').textContent =
+                accounts > 0 ? `${evalSubBillPeriods} mo × ${accounts} acc` : '—';
+            document.getElementById('dashEvalSubCostPerAcc').textContent =
+                subCostPerAccEval != null ? dashFmt(subCostPerAccEval) : '—';
+            document.getElementById('dashEvalSubCostTotal').textContent =
+                evalSubCostDuringEval > 0 ? dashFmt(evalSubCostDuringEval) : (subscriptionEnabled ? dashFmt(0) : '—');
+        }
+
+        if (daysToFirstFunded == null) {
+            document.getElementById('dashFundedDaysPerAcc').textContent = '—';
+            document.getElementById('dashPathPerAcc').textContent = '—';
+        } else {
+            document.getElementById('dashFundedDaysPerAcc').textContent = `${daysToFirstFunded} trading days (gross, from $0)`;
+            const pathDays =
+                evalDaysPass != null ? evalDaysPass + daysToFirstFunded : null;
+            document.getElementById('dashPathPerAcc').textContent =
+                pathDays != null
+                    ? `${pathDays} days (eval ${evalDaysPass} + funded ${daysToFirstFunded})`
+                    : `${daysToFirstFunded} days (funded only — set eval target for full path)`;
+        }
+
+        document.getElementById('dashboardNote').textContent =
+            'Eval subscription months = ceil(eval days ÷ your trading days/mo), a simple proxy for how many monthly subscription charges you may pay before pass. Firm billing rules vary.';
+
         document.getElementById('firstPayoutAmounts').innerText = formatter.format(firstPayout * (split / 100));
         document.getElementById('recurringPayoutAmounts').innerText = formatter.format(recurringPayout * (split / 100));
 
         document.getElementById('totalFirstNet').innerText = formatter.format(firstPayout * (split / 100) * accounts);
         document.getElementById('totalRecurringNet').innerText = formatter.format(recurringPayout * (split / 100) * accounts);
 
-        const firstTarget = buffer + firstPayout;
+        const timeEvalEl = document.getElementById('timeToEvalPass');
         const timeFirstEl = document.getElementById('timeToFirst');
         const timeRecEl = document.getElementById('timeToRecurring');
 
-        if (evPerAccount > 0) {
-            const daysToFirst = Math.ceil(firstTarget / evPerAccount);
-            const daysToRec = Math.ceil(recurringPayout / evPerAccount);
+        if (evalProfitTarget <= 0) {
+            timeEvalEl.innerHTML = '<span style="color:#64748b;">Enter eval gross profit in Firm costs</span>';
+        } else if (evPerAccount <= 0) {
+            timeEvalEl.innerHTML = 'N/A (EV ≤ 0)';
+        } else {
+            let evHtml = `<strong>${evalDaysPass}</strong> trading days<br><span style="font-size:0.8em;color:#94a3b8;font-weight:normal;">gross edge to pass</span>`;
+            evHtml += `<br><span style="font-size:0.8em;color:#cbd5e1;font-weight:normal;">≈ <strong>${evalSubBillPeriods}</strong> sub month(s) at ${TRADING_DAYS_MONTH} d/mo</span>`;
+            if (subscriptionEnabled && monthlySubscription > 0 && accounts > 0) {
+                evHtml += `<br><span style="font-size:0.8em;color:#94a3b8;">Est. sub spend: ${formatter.format(evalSubCostDuringEval)} total</span>`;
+            }
+            timeEvalEl.innerHTML = evHtml;
+        }
 
-            let firstText = `${daysToFirst} Trading Days`;
-            if (daysToFirst >= TRADING_DAYS_MONTH) {
-                firstText += `<br><span style="font-size: 0.85em; color: #94a3b8; font-weight: normal;">(${(daysToFirst / TRADING_DAYS_MONTH).toFixed(1)} Months)</span>`;
+        if (evPerAccount > 0 && daysToFirstFunded != null) {
+            let firstText = `<strong>${daysToFirstFunded}</strong> trading days`;
+            firstText += `<br><span style="font-size: 0.8em; color: #94a3b8; font-weight: normal;">buffer + 1st payout (gross, from $0 funded)</span>`;
+            if (daysToFirstFunded >= TRADING_DAYS_MONTH) {
+                firstText += `<br><span style="font-size: 0.8em; color: #64748b;">(${(daysToFirstFunded / TRADING_DAYS_MONTH).toFixed(1)} trading-mo)</span>`;
             }
             timeFirstEl.innerHTML = firstText;
 
-            let recText = `Every ${daysToRec} Trading Days`;
-            if (daysToRec >= TRADING_DAYS_MONTH) {
-                recText += `<br><span style="font-size: 0.85em; color: #94a3b8; font-weight: normal;">(${(daysToRec / TRADING_DAYS_MONTH).toFixed(1)} Months)</span>`;
+            let recText;
+            if (recurringPayout <= 0) {
+                recText = '<span style="color:#64748b;">Set recurring payout ($)</span>';
+            } else {
+                recText = `Every <strong>${daysToRecurringFunded}</strong> trading days`;
+                recText += `<br><span style="font-size: 0.8em; color: #94a3b8;">gross per funded withdrawal</span>`;
+                if (daysToRecurringFunded >= TRADING_DAYS_MONTH) {
+                    recText += `<br><span style="font-size: 0.8em; color: #64748b;">(${(daysToRecurringFunded / TRADING_DAYS_MONTH).toFixed(1)} trading-mo)</span>`;
+                }
             }
             timeRecEl.innerHTML = recText;
         } else {
-            timeFirstEl.innerHTML = 'N/A (Losing)';
-            timeRecEl.innerHTML = 'N/A (Losing)';
+            timeFirstEl.innerHTML = 'N/A (EV ≤ 0)';
+            timeRecEl.innerHTML = 'N/A (EV ≤ 0)';
         }
 
         const riskEl = document.getElementById('consecutiveLosses');
