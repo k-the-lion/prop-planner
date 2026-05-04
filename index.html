@@ -39,7 +39,8 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.1);
             width: 100%;
-            max-width: 500px;
+            max-width: 520px;
+            overflow: visible;
         }
 
         .logo {
@@ -112,19 +113,22 @@
             font-size: 10px;
             font-weight: bold;
             cursor: help;
+            z-index: 50;
+            flex-shrink: 0;
         }
 
         .tooltip .tooltip-text {
             visibility: hidden;
-            width: 220px;
+            width: max-content;
+            max-width: min(260px, calc(100vw - 32px));
             background-color: #0f172a;
             color: #f8fafc;
-            text-align: center;
+            text-align: left;
             border-radius: 6px;
             padding: 8px 10px;
             position: absolute;
-            z-index: 10;
-            bottom: 150%;
+            z-index: 200;
+            bottom: calc(100% + 8px);
             left: 50%;
             transform: translateX(-50%);
             opacity: 0;
@@ -135,6 +139,12 @@
             border: 1px solid #334155;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
             pointer-events: none;
+        }
+
+        .tooltip.tooltip-end .tooltip-text {
+            left: auto;
+            right: 0;
+            transform: none;
         }
 
         .tooltip .tooltip-text::after {
@@ -188,6 +198,132 @@
             cursor: pointer;
             font-size: 0.85rem;
             color: #94a3b8;
+        }
+
+        .fee-switch-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .fee-switch-row .fee-switch-label {
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            margin: 0;
+            flex: 1;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            position: absolute;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: #334155;
+            border-radius: 24px;
+            transition: background-color 0.2s;
+        }
+
+        .slider::before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #f8fafc;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+
+        .switch input:checked + .slider {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .switch input:checked + .slider::before {
+            transform: translateX(20px);
+        }
+
+        .switch input:focus-visible + .slider {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        .dashboard-box {
+            margin-top: 1.25rem;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid var(--secondary);
+            border-radius: 1rem;
+            overflow: visible;
+        }
+
+        .dashboard-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 0.75rem;
+            text-align: center;
+        }
+
+        .dashboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            color: #cbd5e1;
+        }
+
+        .dashboard-table th,
+        .dashboard-table td {
+            padding: 0.45rem 0.35rem;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+            text-align: right;
+        }
+
+        .dashboard-table th:first-child,
+        .dashboard-table td:first-child {
+            text-align: left;
+        }
+
+        .dashboard-table th {
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .dashboard-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .dashboard-table .dash-strong {
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .dashboard-note {
+            font-size: 0.68rem;
+            color: #64748b;
+            margin-top: 0.65rem;
+            line-height: 1.4;
         }
 
         .section-label {
@@ -365,7 +501,7 @@
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid #334155;
             border-radius: 1rem;
-            overflow: hidden;
+            overflow: visible;
             transition: all 0.3s ease;
         }
 
@@ -478,7 +614,7 @@
         }
     </style>
 </head>
-<body onload="onPhaseChange(); calculate();">
+<body onload="onFeeToggles(); calculate();">
 
 <div class="container">
 
@@ -541,54 +677,55 @@
     </div>
 
     <details class="costs-phase">
-        <summary>Costs &amp; phase</summary>
+        <summary>Firm costs (match your prop firm)</summary>
         <div class="planner-content">
-            <div class="input-group full-width">
-                <label for="tradePhase">
-                    Phase
-                    <div class="tooltip">?<span class="tooltip-text">Challenge includes per-calendar-month subscription costs. Funded excludes those ongoing eval fees from projections.</span></div>
-                </label>
-                <select id="tradePhase" onchange="onPhaseChange(); calculate();">
-                    <option value="funded" selected>Funded</option>
-                    <option value="challenge">Challenge</option>
-                </select>
-            </div>
             <div class="input-grid">
                 <div class="input-group">
                     <label for="avgAccountCost">
-                        Avg. account / eval cost ($)
-                        <div class="tooltip">?<span class="tooltip-text">One-time cost per account (e.g. evaluation fee averaged with any resets).</span></div>
+                        Avg. eval / account cost ($)
+                        <div class="tooltip">?<span class="tooltip-text">One-time per account: evaluation fee averaged with resets, etc.</span></div>
                     </label>
                     <input type="number" id="avgAccountCost" placeholder="e.g. 50" value="0" min="0" oninput="calculate()">
-                </div>
-                <div class="input-group" id="monthlySubGroup">
-                    <label for="monthlySubscription">
-                        Monthly subscription ($ / account / cal. mo)
-                        <div class="tooltip">?<span class="tooltip-text">Recurring evaluation subscription per account, per calendar month. Applied only in Challenge phase. Trading P&amp;L above uses trading days per month, not calendar days.</span></div>
-                    </label>
-                    <input type="number" id="monthlySubscription" placeholder="e.g. 50" value="0" min="0" oninput="calculate()">
-                </div>
-            </div>
-            <div class="input-grid">
-                <div class="input-group">
-                    <div class="checkbox-row">
-                        <input type="checkbox" id="activationEnabled" onchange="calculate()">
-                        <label for="activationEnabled">Activation fee applies (per account)</label>
-                    </div>
-                    <label for="activationFeeAmount">
-                        Activation fee ($)
-                        <div class="tooltip">?<span class="tooltip-text">One-time activation per account when the checkbox is enabled.</span></div>
-                    </label>
-                    <input type="number" id="activationFeeAmount" placeholder="e.g. 100" value="0" min="0" oninput="calculate()">
                 </div>
                 <div class="input-group">
                     <label for="amortizeMonths">
                         Amortize one-time over (months)
-                        <div class="tooltip">?<span class="tooltip-text">Spread eval + activation one-time costs over this many calendar months to see an effective monthly after recurring costs. Set to 0 to hide.</span></div>
+                        <div class="tooltip tooltip-end">?<span class="tooltip-text">Split one-time eval + activation across this many months to see an effective monthly number. Use 0 to hide.</span></div>
                     </label>
                     <input type="number" id="amortizeMonths" placeholder="0 = off" value="0" min="0" step="1" oninput="calculate()">
                 </div>
             </div>
+
+            <div class="input-group" id="monthlySubGroup">
+                <div class="fee-switch-row">
+                    <span class="fee-switch-label">Monthly subscription</span>
+                    <label class="switch" title="Firms that bill a recurring monthly fee during eval">
+                        <input type="checkbox" id="subscriptionEnabled" onchange="onFeeToggles(); calculate();">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <label for="monthlySubscription">
+                    $ / account / calendar month
+                    <div class="tooltip tooltip-end">?<span class="tooltip-text">Charged each calendar month per account when subscription is on. Trading P&amp;L uses trading days per month, not calendar days.</span></div>
+                </label>
+                <input type="number" id="monthlySubscription" placeholder="e.g. 50" value="0" min="0" oninput="calculate()">
+            </div>
+
+            <div class="input-group" id="activationGroup">
+                <div class="fee-switch-row">
+                    <span class="fee-switch-label">Activation fee</span>
+                    <label class="switch" title="One-time activation when you pass or go live">
+                        <input type="checkbox" id="activationEnabled" onchange="onFeeToggles(); calculate();">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <label for="activationFeeAmount">
+                    $ per account (one-time)
+                    <div class="tooltip tooltip-end">?<span class="tooltip-text">One-time activation per account when this switch is on.</span></div>
+                </label>
+                <input type="number" id="activationFeeAmount" placeholder="e.g. 100" value="0" min="0" oninput="calculate()">
+            </div>
+
             <p class="costs-footnote" id="costsFootnote"></p>
         </div>
     </details>
@@ -639,6 +776,47 @@
             <span>Monthly: <strong id="effectiveMonthly">$0</strong></span>
             <span>Annual: <strong id="effectiveAnnual">$0</strong></span>
         </div>
+    </div>
+
+    <div class="dashboard-box" id="costsDashboard">
+        <div class="dashboard-title">Spend planner</div>
+        <table class="dashboard-table" aria-label="Monthly and one-time costs per account and total">
+            <thead>
+                <tr>
+                    <th scope="col">Item</th>
+                    <th scope="col">Per account</th>
+                    <th scope="col">All accounts</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Monthly subscription</td>
+                    <td id="dashSubPerAcc">—</td>
+                    <td id="dashSubTotal">—</td>
+                </tr>
+                <tr>
+                    <td>One-time (eval + activation)</td>
+                    <td id="dashOneTimePerAcc">—</td>
+                    <td id="dashOneTimeTotal">—</td>
+                </tr>
+                <tr>
+                    <td><span class="dash-strong">Typical first-month cash</span></td>
+                    <td id="dashFirstMonthPerAcc">—</td>
+                    <td id="dashFirstMonthTotal" class="dash-strong">—</td>
+                </tr>
+                <tr>
+                    <td>Expected trading income (after split)</td>
+                    <td id="dashTradePerAccMo">—</td>
+                    <td id="dashTradeTotalMo">—</td>
+                </tr>
+                <tr>
+                    <td>Net after subs (trading − subscription)</td>
+                    <td id="dashNetPerAccMo">—</td>
+                    <td id="dashNetTotalMo">—</td>
+                </tr>
+            </tbody>
+        </table>
+        <p class="dashboard-note" id="dashboardNote">Subscription is per calendar month. Trading income uses your trading days per month setting.</p>
     </div>
 
     <div class="per-account-section" id="perAccountSection">
@@ -746,12 +924,18 @@
 </div>
 
 <script>
-    function onPhaseChange() {
-        const funded = document.getElementById('tradePhase').value === 'funded';
-        const sub = document.getElementById('monthlySubscription');
-        const group = document.getElementById('monthlySubGroup');
-        sub.disabled = funded;
-        group.classList.toggle('disabled-field', funded);
+    function onFeeToggles() {
+        const subOn = document.getElementById('subscriptionEnabled').checked;
+        const subInput = document.getElementById('monthlySubscription');
+        const subGroup = document.getElementById('monthlySubGroup');
+        subInput.disabled = !subOn;
+        subGroup.classList.toggle('disabled-field', !subOn);
+
+        const actOn = document.getElementById('activationEnabled').checked;
+        const actInput = document.getElementById('activationFeeAmount');
+        const actGroup = document.getElementById('activationGroup');
+        actInput.disabled = !actOn;
+        actGroup.classList.toggle('disabled-field', !actOn);
     }
 
     function calculate() {
@@ -770,12 +954,13 @@
         const recurringPayout = parseFloat(document.getElementById('recurringPayout').value) || 0;
         const maxDrawdown = parseFloat(document.getElementById('maxDrawdown').value) || 0;
 
-        const phase = document.getElementById('tradePhase').value;
-        const isChallenge = phase === 'challenge';
+        const subscriptionEnabled = document.getElementById('subscriptionEnabled').checked;
         const avgAccountCost = parseFloat(document.getElementById('avgAccountCost').value) || 0;
         const activationEnabled = document.getElementById('activationEnabled').checked;
         const activationFeeAmount = parseFloat(document.getElementById('activationFeeAmount').value) || 0;
-        const monthlySubscription = parseFloat(document.getElementById('monthlySubscription').value) || 0;
+        const monthlySubscription = subscriptionEnabled
+            ? (parseFloat(document.getElementById('monthlySubscription').value) || 0)
+            : 0;
         let amortizeMonths = parseInt(document.getElementById('amortizeMonths').value, 10);
         if (Number.isNaN(amortizeMonths) || amortizeMonths < 0) amortizeMonths = 0;
 
@@ -794,7 +979,7 @@
         const tradingMonthlyTotal = tradingDailyTotal * TRADING_DAYS_MONTH;
         const tradingAnnualTotal = netDailyPerAccount * TRADING_DAYS_YEAR * accounts;
 
-        const recurringCostMonthly = isChallenge ? accounts * monthlySubscription : 0;
+        const recurringCostMonthly = accounts * monthlySubscription;
         const afterRecurringMonthly = tradingMonthlyTotal - recurringCostMonthly;
         const afterRecurringAnnual = afterRecurringMonthly * 12;
         const afterRecurringDaily = TRADING_DAYS_MONTH > 0 ? afterRecurringMonthly / TRADING_DAYS_MONTH : 0;
@@ -847,7 +1032,7 @@
             el.classList.remove('negative', 'after-costs-warn');
             if (negativeAfterRecurring) {
                 el.classList.add('negative');
-            } else if (!negativeTrading && afterRecurringMonthly < tradingMonthlyTotal && isChallenge && recurringCostMonthly > 0) {
+            } else if (!negativeTrading && afterRecurringMonthly < tradingMonthlyTotal && subscriptionEnabled && recurringCostMonthly > 0) {
                 el.classList.add('after-costs-warn');
             }
         });
@@ -871,17 +1056,34 @@
         const footerEl = document.getElementById('dynamicFooter');
         footerEl.innerHTML =
             `Trading P&amp;L uses <strong>${TRADING_DAYS_MONTH}</strong> trading days/mo → <strong>${TRADING_DAYS_YEAR}</strong> trading days/yr. ` +
-            `Monthly subscription (Challenge) is per <strong>calendar</strong> month. ` +
-            `Net daily after costs spreads the calendar-month subscription across <strong>${TRADING_DAYS_MONTH}</strong> active trading days (estimate).`;
+            `When subscription is on, it is per <strong>calendar</strong> month per account. ` +
+            `Net daily after costs spreads that monthly bill across <strong>${TRADING_DAYS_MONTH}</strong> active trading days (estimate).`;
 
         const foot = document.getElementById('costsFootnote');
-        if (isChallenge && recurringCostMonthly > tradingMonthlyTotal && tradingMonthlyTotal >= 0) {
+        if (subscriptionEnabled && recurringCostMonthly > tradingMonthlyTotal && tradingMonthlyTotal >= 0) {
             foot.textContent = 'Subscription exceeds trading-month estimate: negative net monthly is a business cashflow issue, not necessarily negative per-trade expectancy.';
         } else if (negativeAfterRecurring && !negativeTrading) {
             foot.textContent = 'Net after recurring costs is negative while trading expectancy is positive: subscriptions or scale may exceed edge.';
         } else {
             foot.textContent = '';
         }
+
+        const dashFmt = (n) => formatter.format(n);
+        document.getElementById('dashSubPerAcc').textContent = subscriptionEnabled ? dashFmt(monthlySubscription) : '—';
+        document.getElementById('dashSubTotal').textContent = subscriptionEnabled ? dashFmt(recurringCostMonthly) : '—';
+        document.getElementById('dashOneTimePerAcc').textContent = dashFmt(oneTimePerAccount);
+        document.getElementById('dashOneTimeTotal').textContent = dashFmt(oneTimeTotal);
+
+        const firstMoPerAcc = monthlySubscription + oneTimePerAccount;
+        const firstMoTotal = recurringCostMonthly + oneTimeTotal;
+        document.getElementById('dashFirstMonthPerAcc').textContent = dashFmt(firstMoPerAcc);
+        document.getElementById('dashFirstMonthTotal').textContent = dashFmt(firstMoTotal);
+
+        const tradePerAccMo = netDailyPerAccount * TRADING_DAYS_MONTH;
+        document.getElementById('dashTradePerAccMo').textContent = dashFmt(tradePerAccMo);
+        document.getElementById('dashTradeTotalMo').textContent = dashFmt(tradingMonthlyTotal);
+        document.getElementById('dashNetPerAccMo').textContent = dashFmt(perAfterMonthly);
+        document.getElementById('dashNetTotalMo').textContent = dashFmt(afterRecurringMonthly);
 
         document.getElementById('firstPayoutAmounts').innerText = formatter.format(firstPayout * (split / 100));
         document.getElementById('recurringPayoutAmounts').innerText = formatter.format(recurringPayout * (split / 100));
