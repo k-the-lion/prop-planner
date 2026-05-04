@@ -685,15 +685,15 @@
     <div class="input-grid">
         <div class="input-group">
             <label for="avgProfit">
-                Avg. daily win ($)
-                <div class="tooltip">?<span class="tooltip-text">Avg. profit on a winning day per account (gr. = gross on account).</span></div>
+                Average daily win ($)
+                <div class="tooltip">?<span class="tooltip-text">Average gross profit on a winning day, per account.</span></div>
             </label>
             <input type="number" id="avgProfit" placeholder="e.g. 100" value="100" oninput="calculate()">
         </div>
         <div class="input-group">
             <label for="avgLoss">
-                Avg. daily loss ($)
-                <div class="tooltip">?<span class="tooltip-text">Avg. loss on a losing day per account (gr.).</span></div>
+                Average daily loss ($)
+                <div class="tooltip">?<span class="tooltip-text">Average gross loss on a losing day, per account.</span></div>
             </label>
             <input type="number" id="avgLoss" placeholder="e.g. 100" value="100" oninput="calculate()">
         </div>
@@ -702,15 +702,15 @@
     <div class="input-grid">
         <div class="input-group">
             <label for="accCount">
-                # of accounts
-                <div class="tooltip">?<span class="tooltip-text">Accounts you run with the same stats below.</span></div>
+                Number of accounts
+                <div class="tooltip">?<span class="tooltip-text">How many accounts use the same numbers below.</span></div>
             </label>
             <input type="number" id="accCount" placeholder="e.g. 10" value="5" oninput="calculate()">
         </div>
         <div class="input-group">
             <label for="tradingDays">
-                Tr. d. / mo <span style="font-weight:normal;color:#64748b">(max 21)</span>
-                <div class="tooltip">?<span class="tooltip-text">tr.d = trading days you trade per month (max 21). Used to turn daily edge into monthly figures and tr.mo.</span></div>
+                Trading days per month <span style="font-weight:normal;color:#64748b">(max 21)</span>
+                <div class="tooltip">?<span class="tooltip-text">Used to turn daily edge into a &quot;trading month&quot; and a trading-year estimate.</span></div>
             </label>
             <input type="number" id="tradingDays" placeholder="e.g. 21" value="21" max="21" oninput="calculate()">
         </div>
@@ -719,56 +719,56 @@
     <div class="input-group full-width">
         <label for="winRate">
             Win rate (%)
-            <div class="tooltip">?<span class="tooltip-text">Share of tr.d that end green.</span></div>
+            <div class="tooltip">?<span class="tooltip-text">Percent of trading days that close with a profit.</span></div>
         </label>
         <input type="number" id="winRate" placeholder="e.g. 60" value="55" oninput="calculate()">
     </div>
 
     <details class="costs-phase" open>
-        <summary>2 · Firm &amp; fees</summary>
+        <summary>2 · Firm and fees</summary>
         <div class="planner-content">
             <div class="input-group full-width">
                 <label for="profitSplit">
                     Profit split (%)
-                    <div class="tooltip">?<span class="tooltip-text">Your share of profits after the firm cut. Applied to net (after split) trading estimates.</span></div>
+                    <div class="tooltip">?<span class="tooltip-text">Your share of profits after the firm keeps its cut. Used for net (after split) trading estimates.</span></div>
                 </label>
                 <input type="number" id="profitSplit" placeholder="e.g. 90" value="90" oninput="calculate()">
             </div>
 
             <div class="input-group" id="accountFeeGroup">
                 <div class="fee-switch-row">
-                    <span class="fee-switch-label">Acct. fee bills monthly (cal. mo)</span>
-                    <label class="switch" title="On: same $ each calendar month. Off: one-time account fee only.">
+                    <span class="fee-switch-label">Account fee bills every calendar month</span>
+                    <label class="switch" title="If on, the same dollar amount each calendar month. If off, it is a one-time fee only.">
                         <input type="checkbox" id="accountFeeRecurring" onchange="onFeeToggles(); calculate();">
                         <span class="slider"></span>
                     </label>
                 </div>
                 <label for="accountFeeAmount">
-                    Account fee ($ / acct.)
-                    <div class="tooltip tooltip-end">?<span class="tooltip-text">If monthly is on: charged each cal. mo per acct. If off: one-time per acct. (e.g. eval purchase). gr. payout math still uses tr.d above.</span></div>
+                    Account fee ($ per account)
+                    <div class="tooltip tooltip-end">?<span class="tooltip-text">If monthly billing is on: this amount each calendar month per account. If off: a single one-time fee per account (for example when you buy the evaluation). Payout timing still uses gross trading days above.</span></div>
                 </label>
                 <input type="number" id="accountFeeAmount" placeholder="e.g. 49" value="0" min="0" oninput="calculate()">
             </div>
 
             <div class="input-group" id="activationGroup">
                 <div class="fee-switch-row">
-                    <span class="fee-switch-label">Activation fee</span>
-                    <label class="switch" title="One-time when funded / live">
+                    <span class="fee-switch-label">Activation fee (when you pass)</span>
+                    <label class="switch" title="Charged once when you pass to funded, not during the evaluation">
                         <input type="checkbox" id="activationEnabled" onchange="onFeeToggles(); calculate();">
                         <span class="slider"></span>
                     </label>
                 </div>
                 <label for="activationFeeAmount">
-                    $ / acct. (1×)
-                    <div class="tooltip tooltip-end">?<span class="tooltip-text">One-time per acct. when switch on.</span></div>
+                    Activation ($ per account, one-time at pass)
+                    <div class="tooltip tooltip-end">?<span class="tooltip-text">Many firms charge this only after you pass the evaluation, when the funded account is issued. It is not part of evaluation-only costs.</span></div>
                 </label>
                 <input type="number" id="activationFeeAmount" placeholder="e.g. 100" value="0" min="0" oninput="calculate()">
             </div>
 
             <div class="input-group full-width">
                 <label for="evalProfitTarget">
-                    Eval gr. profit to pass ($ / acct.)
-                    <div class="tooltip">?<span class="tooltip-text">Total gross profit needed on eval to pass (simplified). Sets eval tr.d and, if acct. fee is monthly, how many cal. mo fees you pay before pass.</span></div>
+                    Evaluation gross profit to pass ($ per account)
+                    <div class="tooltip">?<span class="tooltip-text">Total gross profit the evaluation account must reach to pass (simplified). Sets how long you are in evaluation and, if the account fee is monthly, how many calendar-month fees you pay before pass.</span></div>
                 </label>
                 <input type="number" id="evalProfitTarget" placeholder="e.g. 3000" value="0" min="0" step="1" oninput="calculate()">
             </div>
@@ -779,7 +779,7 @@
 
     <div class="section-head">3 · Results</div>
 
-    <div class="section-label">Trading (net after split, before acct. fees)</div>
+    <div class="section-label">Trading (net after split, before account fees)</div>
     <div class="results-grid">
         <div class="result-card" id="cardDaily">
             <div class="result-label">Trading daily</div>
@@ -795,7 +795,7 @@
         </div>
     </div>
 
-    <div class="section-label" style="margin-top: 1.25rem;">After acct. fee — portfolio (est.)</div>
+    <div class="section-label" style="margin-top: 1.25rem;">After account fee — portfolio (estimate)</div>
     <div class="results-grid" style="margin-top: 0.75rem;">
         <div class="result-card after-costs" id="cardAfterDaily">
             <div class="result-label">Net daily (est.)</div>
@@ -811,14 +811,15 @@
         </div>
     </div>
 
-    <div class="section-head">4 · Spend &amp; path</div>
+    <div class="section-head">4 · Spending and timeline</div>
 
     <div class="one-time-box">
-        <div class="result-label">One-time fees (acct. if 1× + activation)</div>
-        <div class="one-time-rows">
-            <span>Per account: <strong id="oneTimePerAccount">$0</strong></span>
-            <span>Total (all accounts): <strong id="oneTimeTotal">$0</strong></span>
+        <div class="result-label">Cash fees outside monthly billing (estimate)</div>
+        <div class="one-time-rows" style="flex-direction: column; align-items: center; gap: 0.4rem;">
+            <span>One-time account fee on evaluation (if not monthly): <strong id="oneTimeEvalPerAcc">$0</strong> per account, <strong id="oneTimeEvalTotal">$0</strong> all accounts</span>
+            <span>Activation when you pass (if on): <strong id="activationPassPerAcc">$0</strong> per account, <strong id="activationPassTotal">$0</strong> all accounts</span>
         </div>
+        <p class="costs-footnote" style="margin-top: 0.65rem; margin-bottom: 0;">Activation is not included in &quot;first evaluation month&quot; cash — it is due when you pass, not during the evaluation.</p>
     </div>
 
     <div class="dashboard-box" id="costsDashboard">
@@ -833,62 +834,67 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>Acct. fee (cal. mo, if recurring)</td>
+                    <td>Account fee (calendar month, if recurring)</td>
                     <td id="dashSubPerAcc">—</td>
                     <td id="dashSubTotal">—</td>
                 </tr>
                 <tr>
-                    <td>One-time (1× acct. + activation)</td>
-                    <td id="dashOneTimePerAcc">—</td>
-                    <td id="dashOneTimeTotal">—</td>
+                    <td>One-time account fee (evaluation only)</td>
+                    <td id="dashOneTimeEvalPerAcc">—</td>
+                    <td id="dashOneTimeEvalTotal">—</td>
                 </tr>
                 <tr>
-                    <td><span class="dash-strong">Mo 1 cash (recurring fee + 1×)</span></td>
+                    <td>Activation (when you pass)</td>
+                    <td id="dashActivationPassPerAcc">—</td>
+                    <td id="dashActivationPassTotal">—</td>
+                </tr>
+                <tr>
+                    <td><span class="dash-strong">First evaluation month cash</span></td>
                     <td id="dashFirstMonthPerAcc">—</td>
                     <td id="dashFirstMonthTotal" class="dash-strong">—</td>
                 </tr>
                 <tr>
-                    <td>Trading income (net, / mo)</td>
+                    <td>Trading income (net, per trading month)</td>
                     <td id="dashTradePerAccMo">—</td>
                     <td id="dashTradeTotalMo">—</td>
                 </tr>
                 <tr>
-                    <td>Net after acct. fee (est. / mo)</td>
+                    <td>Net after account fee (estimate, per trading month)</td>
                     <td id="dashNetPerAccMo">—</td>
                     <td id="dashNetTotalMo">—</td>
                 </tr>
                 <tr>
-                    <td>Eval → pass (gr.)</td>
+                    <td>Evaluation to pass (gross)</td>
                     <td id="dashEvalDaysPerAcc" colspan="2" style="text-align: right;">—</td>
                 </tr>
                 <tr>
-                    <td>Eval: cal. mo fees before pass</td>
+                    <td>Evaluation: calendar months of fees before pass</td>
                     <td id="dashEvalSubMonthsPerAcc">—</td>
                     <td id="dashEvalSubMonthsTotal">—</td>
                 </tr>
                 <tr>
-                    <td>Eval: $ acct. fees until pass</td>
+                    <td>Evaluation: account fees until pass</td>
                     <td id="dashEvalSubCostPerAcc">—</td>
                     <td id="dashEvalSubCostTotal">—</td>
                 </tr>
                 <tr>
-                    <td>Funded ($0) → 1st payout plan</td>
+                    <td>Funded from zero to first payout plan</td>
                     <td id="dashFundedDaysPerAcc" colspan="2" style="text-align: right;">—</td>
                 </tr>
                 <tr>
-                    <td><span class="dash-strong">Path: eval + funded → 1st payout</span></td>
+                    <td><span class="dash-strong">Full path: evaluation plus funded to first payout</span></td>
                     <td id="dashPathPerAcc" colspan="2" style="text-align: right;" class="dash-strong">—</td>
                 </tr>
             </tbody>
         </table>
-        <p class="dashboard-note" id="dashboardNote">Subscription is per calendar month. Trading income uses your trading days per month setting.</p>
+        <p class="dashboard-note" id="dashboardNote"></p>
     </div>
 
     <div class="section-head">5 · Per account</div>
 
     <div class="per-account-section" id="perAccountSection">
         <div class="per-account-block" id="perAccountTradingBlock">
-            <div class="per-account-title">Single acct. — net after split</div>
+            <div class="per-account-title">Single account — net after split</div>
             <div class="per-account-stats">
                 <span>Daily: <strong id="perAccDaily">$0</strong></span>
                 <span>Monthly: <strong id="perAccMonthly">$0</strong></span>
@@ -896,7 +902,7 @@
             </div>
         </div>
         <div class="per-account-block" id="perAccountAfterBlock">
-            <div class="per-account-title">Single acct. — after acct. fee (est.)</div>
+            <div class="per-account-title">Single account — after account fee (estimate)</div>
             <div class="per-account-stats">
                 <span>Daily: <strong id="perAccAfterDaily">$0</strong></span>
                 <span>Monthly: <strong id="perAccAfterMonthly">$0</strong></span>
@@ -910,7 +916,7 @@
         <div class="planner-content">
 
             <div class="timeline-banner" id="timelineBanner">
-                <strong>Funded reset:</strong> After you pass, funded starts at <strong>$0</strong> gr. Buffer + 1st payout build from <strong>new</strong> funded gr. edge. Eval length uses <strong>Eval gr. profit to pass</strong> in Firm &amp; fees.
+                <strong>Funded account starts at zero:</strong> After you pass, the funded account is modeled from <strong>$0</strong> gross profit. Buffer and first payout only build from <strong>new</strong> funded gross edge. Evaluation length uses <strong>evaluation gross profit to pass</strong> in Firm and fees. Activation (if any) is money at pass, not during the evaluation.
             </div>
 
             <div class="input-grid">
@@ -968,7 +974,7 @@
 
                     <div class="payout-column">
                         <div class="payout-header">1st Payout</div>
-                        <div>Per Acc: <strong id="firstPayoutAmounts">$0</strong></div>
+                        <div>Per account: <strong id="firstPayoutAmounts">$0</strong></div>
                         <div>Total: <strong id="totalFirstNet">$0</strong></div>
                     </div>
 
@@ -976,7 +982,7 @@
 
                     <div class="payout-column">
                         <div class="payout-header">Recurring</div>
-                        <div>Per Acc: <strong id="recurringPayoutAmounts">$0</strong></div>
+                        <div>Per account: <strong id="recurringPayoutAmounts">$0</strong></div>
                         <div>Total: <strong id="totalRecurringNet">$0</strong></div>
                     </div>
 
@@ -994,7 +1000,7 @@
     </details>
 
     <div class="key-legend" id="keyLegend">
-        <strong>Keys:</strong> tr.d = trading days · tr.mo = trading months (tr.d ÷ your tr.d/mo) · cal.mo = calendar month (acct. fee if recurring) · gr. = gross on account · net = after your split %
+        <strong>How to read this tool:</strong> <em>Trading days</em> are days you trade. A <em>trading month</em> here means that many trading days (your &quot;trading days per month&quot; setting). A <em>calendar month</em> is a real month on the calendar (used when your account fee bills monthly). <em>Gross</em> is profit on the account before your profit split. <em>Net</em> is after your split percentage.
     </div>
 
     <div class="footer" id="dynamicFooter">
@@ -1003,11 +1009,11 @@
 </div>
 
 <script>
-    function fmtTrDur(days, tradingDaysMonth) {
-        if (days == null || !Number.isFinite(days) || days < 0) return '—';
-        const tdm = tradingDaysMonth > 0 ? tradingDaysMonth : 21;
-        const trMo = (days / tdm).toFixed(1);
-        return `${days} tr.d · ≈${trMo} tr.mo`;
+    function formatTradingDuration(tradingDays, tradingDaysPerMonth) {
+        if (tradingDays == null || !Number.isFinite(tradingDays) || tradingDays < 0) return '—';
+        const perMonth = tradingDaysPerMonth > 0 ? tradingDaysPerMonth : 21;
+        const approxTradingMonths = (tradingDays / perMonth).toFixed(1);
+        return `${tradingDays} trading days (~${approxTradingMonths} trading months at ${perMonth} trading days per month)`;
     }
 
     function onFeeToggles() {
@@ -1065,8 +1071,9 @@
         const afterRecurringDaily = TRADING_DAYS_MONTH > 0 ? afterRecurringMonthly / TRADING_DAYS_MONTH : 0;
 
         const activationPerAccount = activationEnabled ? activationFeeAmount : 0;
-        const oneTimePerAccount = oneTimeAcctFeePerAcc + activationPerAccount;
-        const oneTimeTotal = accounts * oneTimePerAccount;
+        const oneTimeEvalPerAccount = oneTimeAcctFeePerAcc;
+        const oneTimeEvalTotal = accounts * oneTimeEvalPerAccount;
+        const activationPassTotal = accounts * activationPerAccount;
 
         document.getElementById('dailyResult').innerText = formatter.format(tradingDailyTotal);
         document.getElementById('monthlyResult').innerText = formatter.format(tradingMonthlyTotal);
@@ -1076,8 +1083,10 @@
         document.getElementById('afterMonthlyResult').innerText = formatter.format(afterRecurringMonthly);
         document.getElementById('afterAnnualResult').innerText = formatter.format(afterRecurringAnnual);
 
-        document.getElementById('oneTimePerAccount').innerText = formatter.format(oneTimePerAccount);
-        document.getElementById('oneTimeTotal').innerText = formatter.format(oneTimeTotal);
+        document.getElementById('oneTimeEvalPerAcc').innerText = formatter.format(oneTimeEvalPerAccount);
+        document.getElementById('oneTimeEvalTotal').innerText = formatter.format(oneTimeEvalTotal);
+        document.getElementById('activationPassPerAcc').innerText = formatter.format(activationPerAccount);
+        document.getElementById('activationPassTotal').innerText = formatter.format(activationPassTotal);
 
         const perAfterDaily = accounts > 0 ? afterRecurringDaily / accounts : 0;
         const perAfterMonthly = accounts > 0 ? afterRecurringMonthly / accounts : 0;
@@ -1123,14 +1132,14 @@
 
         const footerEl = document.getElementById('dynamicFooter');
         footerEl.innerHTML =
-            `Core uses <strong>${TRADING_DAYS_MONTH}</strong> tr.d/mo → <strong>${TRADING_DAYS_YEAR}</strong> tr.d/yr. ` +
-            `If acct. fee is recurring, it is <strong>cal.mo</strong> per acct.; net / tr.d spreads that across <strong>${TRADING_DAYS_MONTH}</strong> tr.d (est.).`;
+            `The core calculator uses <strong>${TRADING_DAYS_MONTH}</strong> trading days per month and <strong>${TRADING_DAYS_YEAR}</strong> trading days per year. ` +
+            `If your account fee is monthly, it is per <strong>calendar month</strong> per account. Net per trading day spreads that monthly charge across <strong>${TRADING_DAYS_MONTH}</strong> active trading days (estimate).`;
 
         const foot = document.getElementById('costsFootnote');
         if (accountFeeRecurring && recurringCostMonthly > tradingMonthlyTotal && tradingMonthlyTotal >= 0) {
-            foot.textContent = 'Acct. fee (cal.mo) exceeds trading-month net: cashflow issue, not necessarily bad edge per tr.d.';
+            foot.textContent = 'Monthly account fee is larger than estimated trading-month income: a cash flow issue, not necessarily a bad edge per trading day.';
         } else if (negativeAfterRecurring && !negativeTrading) {
-            foot.textContent = 'Net after acct. fee is negative while edge is positive: fee or scale may eat the edge.';
+            foot.textContent = 'Net after account fee is negative while your edge is positive: fees or scale may erase the edge.';
         } else {
             foot.textContent = '';
         }
@@ -1138,11 +1147,13 @@
         const dashFmt = (n) => formatter.format(n);
         document.getElementById('dashSubPerAcc').textContent = accountFeeRecurring ? dashFmt(monthlyAcctFee) : '—';
         document.getElementById('dashSubTotal').textContent = accountFeeRecurring ? dashFmt(recurringCostMonthly) : '—';
-        document.getElementById('dashOneTimePerAcc').textContent = dashFmt(oneTimePerAccount);
-        document.getElementById('dashOneTimeTotal').textContent = dashFmt(oneTimeTotal);
+        document.getElementById('dashOneTimeEvalPerAcc').textContent = dashFmt(oneTimeEvalPerAccount);
+        document.getElementById('dashOneTimeEvalTotal').textContent = dashFmt(oneTimeEvalTotal);
+        document.getElementById('dashActivationPassPerAcc').textContent = dashFmt(activationPerAccount);
+        document.getElementById('dashActivationPassTotal').textContent = dashFmt(activationPassTotal);
 
-        const firstMoPerAcc = monthlyAcctFee + oneTimePerAccount;
-        const firstMoTotal = recurringCostMonthly + oneTimeTotal;
+        const firstMoPerAcc = monthlyAcctFee + oneTimeEvalPerAccount;
+        const firstMoTotal = recurringCostMonthly + oneTimeEvalTotal;
         document.getElementById('dashFirstMonthPerAcc').textContent = dashFmt(firstMoPerAcc);
         document.getElementById('dashFirstMonthTotal').textContent = dashFmt(firstMoTotal);
 
@@ -1176,9 +1187,11 @@
             : null;
 
         if (evalDaysPass == null || evPerAccount <= 0) {
-            document.getElementById('dashEvalDaysPerAcc').textContent = evalProfitTarget <= 0 ? 'Set eval gr. target' : 'N/A (EV ≤ 0)';
+            document.getElementById('dashEvalDaysPerAcc').textContent =
+                evalProfitTarget <= 0 ? 'Set evaluation profit target' : 'Not available (expected gross per day is zero or negative)';
         } else {
-            document.getElementById('dashEvalDaysPerAcc').textContent = `${fmtTrDur(evalDaysPass, TRADING_DAYS_MONTH)} (gr.)`;
+            document.getElementById('dashEvalDaysPerAcc').textContent =
+                `${formatTradingDuration(evalDaysPass, TRADING_DAYS_MONTH)}, gross`;
         }
 
         if (evalDaysPass == null) {
@@ -1187,9 +1200,9 @@
             document.getElementById('dashEvalSubCostPerAcc').textContent = '—';
             document.getElementById('dashEvalSubCostTotal').textContent = '—';
         } else {
-            document.getElementById('dashEvalSubMonthsPerAcc').textContent = `${evalSubBillPeriods} cal.mo (est.)`;
+            document.getElementById('dashEvalSubMonthsPerAcc').textContent = `${evalSubBillPeriods} calendar months (estimate)`;
             document.getElementById('dashEvalSubMonthsTotal').textContent =
-                accounts > 0 ? `${evalSubBillPeriods} cal.mo × ${accounts} acct.` : '—';
+                accounts > 0 ? `${evalSubBillPeriods} calendar months × ${accounts} accounts` : '—';
             document.getElementById('dashEvalSubCostPerAcc').textContent =
                 subCostPerAccEval != null ? dashFmt(subCostPerAccEval) : '—';
             document.getElementById('dashEvalSubCostTotal').textContent =
@@ -1201,17 +1214,17 @@
             document.getElementById('dashPathPerAcc').textContent = '—';
         } else {
             document.getElementById('dashFundedDaysPerAcc').textContent =
-                `${fmtTrDur(daysToFirstFunded, TRADING_DAYS_MONTH)} · gr. from $0 funded`;
+                `${formatTradingDuration(daysToFirstFunded, TRADING_DAYS_MONTH)}, gross from zero on funded`;
             const pathDays =
                 evalDaysPass != null ? evalDaysPass + daysToFirstFunded : null;
             document.getElementById('dashPathPerAcc').textContent =
                 pathDays != null
-                    ? `${fmtTrDur(pathDays, TRADING_DAYS_MONTH)} (eval ${evalDaysPass} tr.d + funded ${daysToFirstFunded} tr.d)`
-                    : `${fmtTrDur(daysToFirstFunded, TRADING_DAYS_MONTH)} (funded only — add eval target for full path)`;
+                    ? `${formatTradingDuration(pathDays, TRADING_DAYS_MONTH)} (evaluation ${evalDaysPass} trading days, then funded ${daysToFirstFunded} trading days)`
+                    : `${formatTradingDuration(daysToFirstFunded, TRADING_DAYS_MONTH)} (funded only — add evaluation target for full path)`;
         }
 
         document.getElementById('dashboardNote').textContent =
-            'Eval cal.mo count = ceil(eval tr.d ÷ tr.d/mo): proxy for monthly acct. fees paid before pass. Firms vary.';
+            'Calendar months in evaluation are estimated as evaluation trading days divided by your trading days per month. Real firms bill differently; this is a simple planning proxy.';
 
         document.getElementById('firstPayoutAmounts').innerText = formatter.format(firstPayout * (split / 100));
         document.getElementById('recurringPayoutAmounts').innerText = formatter.format(recurringPayout * (split / 100));
@@ -1224,44 +1237,44 @@
         const timeRecEl = document.getElementById('timeToRecurring');
 
         if (evalProfitTarget <= 0) {
-            timeEvalEl.innerHTML = '<span style="color:#64748b;">Set eval gr. target in Firm &amp; fees</span>';
+            timeEvalEl.innerHTML = '<span style="color:#64748b;">Set evaluation gross profit to pass in Firm and fees</span>';
         } else if (evPerAccount <= 0) {
-            timeEvalEl.innerHTML = 'N/A (EV ≤ 0)';
+            timeEvalEl.innerHTML = 'Not available (expected gross per trading day is zero or negative)';
         } else {
-            let evHtml = `<span style="font-size:1.05rem;font-weight:800;">${fmtTrDur(evalDaysPass, TRADING_DAYS_MONTH)}</span>`;
-            evHtml += `<br><span style="font-size:0.8em;color:#94a3b8;">gr. edge to pass</span>`;
-            evHtml += `<br><span style="font-size:0.8em;color:#cbd5e1;">≈ <strong>${evalSubBillPeriods}</strong> cal.mo acct. fee(s) (est.)</span>`;
+            let evHtml = `<span style="font-size:1.02rem;font-weight:800;">${formatTradingDuration(evalDaysPass, TRADING_DAYS_MONTH)}</span>`;
+            evHtml += `<br><span style="font-size:0.8em;color:#94a3b8;">Gross edge to pass evaluation</span>`;
+            evHtml += `<br><span style="font-size:0.8em;color:#cbd5e1;">About <strong>${evalSubBillPeriods}</strong> calendar month(s) of account fee (estimate)</span>`;
             if (accountFeeRecurring && monthlyAcctFee > 0 && accounts > 0) {
-                evHtml += `<br><span style="font-size:0.8em;color:#94a3b8;">Est. $ until pass: ${formatter.format(evalSubCostDuringEval)}</span>`;
+                evHtml += `<br><span style="font-size:0.8em;color:#94a3b8;">Estimated account fees until pass: ${formatter.format(evalSubCostDuringEval)}</span>`;
             }
             timeEvalEl.innerHTML = evHtml;
         }
 
         if (evPerAccount > 0 && daysToFirstFunded != null) {
-            let firstText = `<span style="font-size:1.05rem;font-weight:800;">${fmtTrDur(daysToFirstFunded, TRADING_DAYS_MONTH)}</span>`;
-            firstText += `<br><span style="font-size: 0.8em; color: #94a3b8;">buffer + 1st payout (gr., $0 funded)</span>`;
+            let firstText = `<span style="font-size:1.02rem;font-weight:800;">${formatTradingDuration(daysToFirstFunded, TRADING_DAYS_MONTH)}</span>`;
+            firstText += `<br><span style="font-size: 0.8em; color: #94a3b8;">Buffer plus first payout, gross, funded account from zero</span>`;
             timeFirstEl.innerHTML = firstText;
 
             let recText;
             if (recurringPayout <= 0) {
-                recText = '<span style="color:#64748b;">Set recurring payout ($)</span>';
+                recText = '<span style="color:#64748b;">Set recurring payout amount in dollars</span>';
             } else {
                 const recMo = (daysToRecurringFunded / TRADING_DAYS_MONTH).toFixed(1);
-                recText = `<span style="font-size:1.05rem;font-weight:800;">Every ${daysToRecurringFunded} tr.d</span>`;
-                recText += `<br><span style="font-size: 0.82em; color: #94a3b8;">≈ ${recMo} tr.mo between wd (gr.)</span>`;
+                recText = `<span style="font-size:1.02rem;font-weight:800;">Every ${daysToRecurringFunded} trading days</span>`;
+                recText += `<br><span style="font-size: 0.82em; color: #94a3b8;">About ${recMo} trading months between gross withdrawals on funded</span>`;
             }
             timeRecEl.innerHTML = recText;
         } else {
-            timeFirstEl.innerHTML = 'N/A (EV ≤ 0)';
-            timeRecEl.innerHTML = 'N/A (EV ≤ 0)';
+            timeFirstEl.innerHTML = 'Not available (expected gross per trading day is zero or negative)';
+            timeRecEl.innerHTML = 'Not available (expected gross per trading day is zero or negative)';
         }
 
         const riskEl = document.getElementById('consecutiveLosses');
         if (loss > 0 && maxDrawdown > 0) {
             const daysToBlow = Math.floor(maxDrawdown / loss);
-            riskEl.innerHTML = `${fmtTrDur(daysToBlow, TRADING_DAYS_MONTH)} <span style="color:#94a3b8;font-weight:normal;">red days in a row</span>`;
+            riskEl.innerHTML = `${formatTradingDuration(daysToBlow, TRADING_DAYS_MONTH)} <span style="color:#94a3b8;font-weight:normal;">losing trading days in a row (estimate)</span>`;
         } else {
-            riskEl.innerText = 'N/A';
+            riskEl.innerText = 'Not available';
         }
     }
 </script>
