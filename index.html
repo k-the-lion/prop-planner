@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prop Firm Account Planner</title>
+
+    <link rel="icon" type="image/png" href="prop-calc-logo.png">
+
+    <style>
+        :root {
+            --primary: #00d2ff;
+            --secondary: #3a7bd5;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .logo {
+            display: block;
+            margin: 0 auto 1rem auto;
+            max-width: 80px;
+            height: auto;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            font-weight: 700;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 0;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .input-grid .input-group {
+            margin-bottom: 0;
+        }
+
+        .input-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .input-group.disabled-field label {
+            color: #64748b;
+        }
+
+        .input-group.disabled-field input,
+        .input-group.disabled-field select {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: 6px;
+            width: 14px;
+            height: 14px;
+            background-color: #334155;
+            color: #cbd5e1;
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: help;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 220px;
+            background-color: #0f172a;
+            color: #f8fafc;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 10px;
+            position: absolute;
+            z-index: 10;
+            bottom: 150%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.2s;
+            font-size: 0.75rem;
+            font-weight: normal;
+            line-height: 1.4;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+        }
+
+        .tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #334155 transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: white;
+            font-size: 1rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .checkbox-row input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .checkbox-row label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .section-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #64748b;
+            margin: 0.25rem 0 0.75rem 0;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        @media (min-width: 480px) {
+            .results-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .result-card {
+            padding: 1rem;
+            background: linear-gradient(to bottom right, #1e293b, #0f172a);
+            border: 1px solid var(--secondary);
+            border-radius: 1rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .result-card.highlight {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border: none;
+        }
+
+        .result-card.negative {
+            border-color: var(--danger);
+        }
+
+        .result-card.highlight.negative {
+            background: linear-gradient(to right, #7f1d1d, #b91c1c);
+        }
+
+        .result-card.after-costs-warn {
+            border-color: var(--warning);
+        }
+
+        .result-card.after-costs-warn.negative {
+            border-color: var(--danger);
+        }
+
+        .result-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #cbd5e1;
+            margin-bottom: 0.5rem;
+        }
+
+        .highlight .result-label {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .result-value {
+            font-size: 1.25rem;
+            font-weight: 800;
+        }
+
+        .highlight .result-value {
+            font-size: 1.5rem;
+        }
+
+        .per-account-section {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 0.75rem;
+            text-align: center;
+            border: 1px solid #334155;
+            transition: border-color 0.3s ease;
+        }
+
+        .per-account-section.negative {
+            border-color: var(--danger);
+        }
+
+        .per-account-section.after-costs-negative {
+            border-color: var(--danger);
+        }
+
+        .per-account-title {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+
+        .per-account-block {
+            margin-bottom: 1rem;
+        }
+
+        .per-account-block:last-child {
+            margin-bottom: 0;
+        }
+
+        .per-account-stats {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .per-account-stats strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .one-time-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 0.75rem;
+            border: 1px solid #334155;
+            text-align: center;
+        }
+
+        .one-time-box .result-label {
+            margin-bottom: 0.5rem;
+        }
+
+        .one-time-rows {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+
+        .one-time-rows strong {
+            color: var(--text);
+        }
+
+        .effective-monthly-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: linear-gradient(to right, #1e293b, #0f172a);
+            border-radius: 0.75rem;
+            border: 1px solid var(--secondary);
+            text-align: center;
+        }
+
+        .effective-monthly-box.hidden {
+            display: none;
+        }
+
+        .costs-footnote {
+            font-size: 0.72rem;
+            color: #64748b;
+            line-height: 1.4;
+            margin-top: 0.75rem;
+            text-align: left;
+        }
+
+        .payout-planner, .costs-phase {
+            margin-top: 1.5rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #334155;
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .payout-planner summary, .costs-phase summary {
+            padding: 1rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary);
+            list-style: none;
+            outline: none;
+            user-select: none;
+        }
+
+        .payout-planner summary::-webkit-details-marker,
+        .costs-phase summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .payout-planner summary::before,
+        .costs-phase summary::before {
+            content: '▶ ';
+            display: inline-block;
+            margin-right: 0.5rem;
+            transition: transform 0.2s;
+        }
+
+        .payout-planner[open] summary::before,
+        .costs-phase[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        .planner-content {
+            padding: 0 1rem 1rem 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 0.5rem;
+            padding-top: 1rem;
+        }
+
+        .payout-results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .payout-card {
+            background: #0f172a;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid #1e293b;
+            text-align: center;
+        }
+
+        .total-payout-box {
+            margin-top: 1rem;
+            background: linear-gradient(to right, #1e293b, #0f172a);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--secondary);
+            text-align: center;
+        }
+
+        .payout-split-info {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.85rem;
+            margin-top: 0.8rem;
+            color: #cbd5e1;
+        }
+
+        .payout-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .payout-divider {
+            width: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            align-self: stretch;
+            margin: 0 10px;
+        }
+
+        .payout-header {
+            color: var(--primary);
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.2rem;
+        }
+
+        .payout-split-info strong {
+            color: white;
+            font-size: 1.05rem;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            color: #64748b;
+            transition: color 0.3s;
+            line-height: 1.45;
+        }
+    </style>
+</head>
+<body onload="onPhaseChange(); calculate();">
+
+<div class="container">
+
+    <img src="prop-calc-logo.png" alt="Prop Planner Logo" class="logo" id="mainLogo">
+
+    <h2>
+        Prop Planner
+        <div class="tooltip">?<span class="tooltip-text">Disclaimer: This is a planning tool and does not model firm-specific payout eligibility rules or complex trailing drawdown mechanics.</span></div>
+    </h2>
+
+    <div class="input-grid">
+        <div class="input-group">
+            <label for="avgProfit">
+                Avg. Daily Win ($)
+                <div class="tooltip">?<span class="tooltip-text">The average amount of profit you make on a winning day per account.</span></div>
+            </label>
+            <input type="number" id="avgProfit" placeholder="e.g. 100" value="100" oninput="calculate()">
+        </div>
+        <div class="input-group">
+            <label for="avgLoss">
+                Avg. Daily Loss ($)
+                <div class="tooltip">?<span class="tooltip-text">The average amount you lose on a losing day per account. Keep this realistic!</span></div>
+            </label>
+            <input type="number" id="avgLoss" placeholder="e.g. 100" value="100" oninput="calculate()">
+        </div>
+    </div>
+
+    <div class="input-grid">
+        <div class="input-group">
+            <label for="accCount">
+                Number of Accounts
+                <div class="tooltip">?<span class="tooltip-text">The total number of funded accounts you are trading simultaneously.</span></div>
+            </label>
+            <input type="number" id="accCount" placeholder="e.g. 10" value="5" oninput="calculate()">
+        </div>
+        <div class="input-group">
+            <label for="tradingDays">
+                Trading Days / Month
+                <div class="tooltip">?<span class="tooltip-text">The average number of days you actively trade per month (max 21).</span></div>
+            </label>
+            <input type="number" id="tradingDays" placeholder="e.g. 21" value="21" max="21" oninput="calculate()">
+        </div>
+    </div>
+
+    <div class="input-grid">
+        <div class="input-group">
+            <label for="winRate">
+                Win Rate (%)
+                <div class="tooltip">?<span class="tooltip-text">The percentage of trading days that end in a profit.</span></div>
+            </label>
+            <input type="number" id="winRate" placeholder="e.g. 60" value="55" oninput="calculate()">
+        </div>
+        <div class="input-group">
+            <label for="profitSplit">
+                Profit Split (%)
+                <div class="tooltip">?<span class="tooltip-text">The percentage of the profits you keep after the prop firm takes their cut.</span></div>
+            </label>
+            <input type="number" id="profitSplit" placeholder="e.g. 90" value="90" oninput="calculate()">
+        </div>
+    </div>
+
+    <details class="costs-phase">
+        <summary>Costs &amp; phase</summary>
+        <div class="planner-content">
+            <div class="input-group full-width">
+                <label for="tradePhase">
+                    Phase
+                    <div class="tooltip">?<span class="tooltip-text">Challenge includes per-calendar-month subscription costs. Funded excludes those ongoing eval fees from projections.</span></div>
+                </label>
+                <select id="tradePhase" onchange="onPhaseChange(); calculate();">
+                    <option value="funded" selected>Funded</option>
+                    <option value="challenge">Challenge</option>
+                </select>
+            </div>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="avgAccountCost">
+                        Avg. account / eval cost ($)
+                        <div class="tooltip">?<span class="tooltip-text">One-time cost per account (e.g. evaluation fee averaged with any resets).</span></div>
+                    </label>
+                    <input type="number" id="avgAccountCost" placeholder="e.g. 50" value="0" min="0" oninput="calculate()">
+                </div>
+                <div class="input-group" id="monthlySubGroup">
+                    <label for="monthlySubscription">
+                        Monthly subscription ($ / account / cal. mo)
+                        <div class="tooltip">?<span class="tooltip-text">Recurring evaluation subscription per account, per calendar month. Applied only in Challenge phase. Trading P&amp;L above uses trading days per month, not calendar days.</span></div>
+                    </label>
+                    <input type="number" id="monthlySubscription" placeholder="e.g. 50" value="0" min="0" oninput="calculate()">
+                </div>
+            </div>
+            <div class="input-grid">
+                <div class="input-group">
+                    <div class="checkbox-row">
+                        <input type="checkbox" id="activationEnabled" onchange="calculate()">
+                        <label for="activationEnabled">Activation fee applies (per account)</label>
+                    </div>
+                    <label for="activationFeeAmount">
+                        Activation fee ($)
+                        <div class="tooltip">?<span class="tooltip-text">One-time activation per account when the checkbox is enabled.</span></div>
+                    </label>
+                    <input type="number" id="activationFeeAmount" placeholder="e.g. 100" value="0" min="0" oninput="calculate()">
+                </div>
+                <div class="input-group">
+                    <label for="amortizeMonths">
+                        Amortize one-time over (months)
+                        <div class="tooltip">?<span class="tooltip-text">Spread eval + activation one-time costs over this many calendar months to see an effective monthly after recurring costs. Set to 0 to hide.</span></div>
+                    </label>
+                    <input type="number" id="amortizeMonths" placeholder="0 = off" value="0" min="0" step="1" oninput="calculate()">
+                </div>
+            </div>
+            <p class="costs-footnote" id="costsFootnote"></p>
+        </div>
+    </details>
+
+    <div class="section-label">Trading (after split, before business costs)</div>
+    <div class="results-grid">
+        <div class="result-card" id="cardDaily">
+            <div class="result-label">Trading daily</div>
+            <div class="result-value" id="dailyResult">$0</div>
+        </div>
+        <div class="result-card" id="cardMonthly">
+            <div class="result-label">Trading monthly</div>
+            <div class="result-value" id="monthlyResult">$0</div>
+        </div>
+        <div class="result-card highlight" id="cardAnnual">
+            <div class="result-label">Trading annual</div>
+            <div class="result-value" id="annualResult">$0</div>
+        </div>
+    </div>
+
+    <div class="section-label" style="margin-top: 1.25rem;">After recurring costs (portfolio)</div>
+    <div class="results-grid" style="margin-top: 0.75rem;">
+        <div class="result-card after-costs" id="cardAfterDaily">
+            <div class="result-label">Net daily (est.)</div>
+            <div class="result-value" id="afterDailyResult">$0</div>
+        </div>
+        <div class="result-card after-costs" id="cardAfterMonthly">
+            <div class="result-label">Net monthly (est.)</div>
+            <div class="result-value" id="afterMonthlyResult">$0</div>
+        </div>
+        <div class="result-card after-costs highlight" id="cardAfterAnnual">
+            <div class="result-label">Net annual (est.)</div>
+            <div class="result-value" id="afterAnnualResult">$0</div>
+        </div>
+    </div>
+
+    <div class="one-time-box">
+        <div class="result-label">One-time fees (eval + activation)</div>
+        <div class="one-time-rows">
+            <span>Per account: <strong id="oneTimePerAccount">$0</strong></span>
+            <span>Total (all accounts): <strong id="oneTimeTotal">$0</strong></span>
+        </div>
+    </div>
+
+    <div class="effective-monthly-box hidden" id="effectiveMonthlyBox">
+        <div class="result-label">Effective monthly (after recurring − amortized one-time)</div>
+        <div class="one-time-rows" style="justify-content: center; gap: 1.5rem;">
+            <span>Monthly: <strong id="effectiveMonthly">$0</strong></span>
+            <span>Annual: <strong id="effectiveAnnual">$0</strong></span>
+        </div>
+    </div>
+
+    <div class="per-account-section" id="perAccountSection">
+        <div class="per-account-block" id="perAccountTradingBlock">
+            <div class="per-account-title">Single account — trading (after split)</div>
+            <div class="per-account-stats">
+                <span>Daily: <strong id="perAccDaily">$0</strong></span>
+                <span>Monthly: <strong id="perAccMonthly">$0</strong></span>
+                <span>Annual: <strong id="perAccAnnual">$0</strong></span>
+            </div>
+        </div>
+        <div class="per-account-block" id="perAccountAfterBlock">
+            <div class="per-account-title">Single account — after recurring costs</div>
+            <div class="per-account-stats">
+                <span>Daily: <strong id="perAccAfterDaily">$0</strong></span>
+                <span>Monthly: <strong id="perAccAfterMonthly">$0</strong></span>
+                <span>Annual: <strong id="perAccAfterAnnual">$0</strong></span>
+            </div>
+        </div>
+    </div>
+
+    <details class="payout-planner">
+        <summary>Advanced: Payouts &amp; Drawdown Risk</summary>
+        <div class="planner-content">
+
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="bufferAmount">
+                        Account Buffer ($)
+                        <div class="tooltip">?<span class="tooltip-text">The safety cushion you want to build in your account before making your first withdrawal.</span></div>
+                    </label>
+                    <input type="number" id="bufferAmount" placeholder="e.g. 2000" value="2000" oninput="calculate()">
+                </div>
+                <div class="input-group">
+                    <label for="firstPayout">
+                        First Payout ($)
+                        <div class="tooltip">?<span class="tooltip-text">The gross amount you intend to withdraw for your very first payout.</span></div>
+                    </label>
+                    <input type="number" id="firstPayout" placeholder="e.g. 500" value="500" oninput="calculate()">
+                </div>
+            </div>
+
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="recurringPayout">
+                        Recurring Payout ($)
+                        <div class="tooltip">?<span class="tooltip-text">The gross amount you intend to withdraw for all subsequent payouts.</span></div>
+                    </label>
+                    <input type="number" id="recurringPayout" placeholder="e.g. 1000" value="1000" oninput="calculate()">
+                </div>
+                <div class="input-group">
+                    <label for="maxDrawdown">
+                        Max Drawdown ($)
+                        <div class="tooltip">?<span class="tooltip-text">The total allowed drawdown (e.g. Trailing or Static) before the account is lost.</span></div>
+                    </label>
+                    <input type="number" id="maxDrawdown" placeholder="e.g. 2500" value="2500" oninput="calculate()">
+                </div>
+            </div>
+
+            <div class="payout-results-grid">
+                <div class="payout-card">
+                    <div class="result-label">Time to 1st Payout</div>
+                    <div class="result-value" id="timeToFirst" style="font-size: 1.1rem;">0 Trading Days</div>
+                </div>
+                <div class="payout-card">
+                    <div class="result-label">Recurring Frequency</div>
+                    <div class="result-value" id="timeToRecurring" style="font-size: 1.1rem;">0 Trading Days</div>
+                </div>
+            </div>
+
+            <div class="total-payout-box">
+                <div class="result-label">Net Take-Home Payouts (After Split)</div>
+                <div class="payout-split-info">
+
+                    <div class="payout-column">
+                        <div class="payout-header">1st Payout</div>
+                        <div>Per Acc: <strong id="firstPayoutAmounts">$0</strong></div>
+                        <div>Total: <strong id="totalFirstNet">$0</strong></div>
+                    </div>
+
+                    <div class="payout-divider"></div>
+
+                    <div class="payout-column">
+                        <div class="payout-header">Recurring</div>
+                        <div>Per Acc: <strong id="recurringPayoutAmounts">$0</strong></div>
+                        <div>Total: <strong id="totalRecurringNet">$0</strong></div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="total-payout-box" style="margin-top: 1rem; border-color: #334155;">
+                <div class="result-label" style="color: #94a3b8;">Risk Management Metric</div>
+                <div class="payout-split-info">
+                    <div>Consecutive Losses to Account Liquidation: <strong id="consecutiveLosses" style="color: var(--danger);">0 Trading Days</strong></div>
+                </div>
+            </div>
+
+        </div>
+    </details>
+
+    <div class="footer" id="dynamicFooter">
+        Based on 21 trading days/mo and 252 trading days/yr.
+    </div>
+</div>
+
+<script>
+    function onPhaseChange() {
+        const funded = document.getElementById('tradePhase').value === 'funded';
+        const sub = document.getElementById('monthlySubscription');
+        const group = document.getElementById('monthlySubGroup');
+        sub.disabled = funded;
+        group.classList.toggle('disabled-field', funded);
+    }
+
+    function calculate() {
+        let customDays = parseFloat(document.getElementById('tradingDays').value) || 21;
+        const TRADING_DAYS_MONTH = Math.min(customDays, 21);
+        const TRADING_DAYS_YEAR = TRADING_DAYS_MONTH * 12;
+
+        const profit = parseFloat(document.getElementById('avgProfit').value) || 0;
+        const loss = parseFloat(document.getElementById('avgLoss').value) || 0;
+        const accounts = parseFloat(document.getElementById('accCount').value) || 0;
+        const winRate = parseFloat(document.getElementById('winRate').value) || 0;
+        const split = parseFloat(document.getElementById('profitSplit').value) || 0;
+
+        const buffer = parseFloat(document.getElementById('bufferAmount').value) || 0;
+        const firstPayout = parseFloat(document.getElementById('firstPayout').value) || 0;
+        const recurringPayout = parseFloat(document.getElementById('recurringPayout').value) || 0;
+        const maxDrawdown = parseFloat(document.getElementById('maxDrawdown').value) || 0;
+
+        const phase = document.getElementById('tradePhase').value;
+        const isChallenge = phase === 'challenge';
+        const avgAccountCost = parseFloat(document.getElementById('avgAccountCost').value) || 0;
+        const activationEnabled = document.getElementById('activationEnabled').checked;
+        const activationFeeAmount = parseFloat(document.getElementById('activationFeeAmount').value) || 0;
+        const monthlySubscription = parseFloat(document.getElementById('monthlySubscription').value) || 0;
+        let amortizeMonths = parseInt(document.getElementById('amortizeMonths').value, 10);
+        if (Number.isNaN(amortizeMonths) || amortizeMonths < 0) amortizeMonths = 0;
+
+        const lossRate = 100 - winRate;
+        const evPerAccount = (profit * (winRate / 100)) - (loss * (lossRate / 100));
+
+        let netDailyPerAccount = evPerAccount > 0 ? evPerAccount * (split / 100) : evPerAccount;
+
+        const formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            maximumFractionDigits: 0
+        });
+
+        const tradingDailyTotal = netDailyPerAccount * accounts;
+        const tradingMonthlyTotal = tradingDailyTotal * TRADING_DAYS_MONTH;
+        const tradingAnnualTotal = netDailyPerAccount * TRADING_DAYS_YEAR * accounts;
+
+        const recurringCostMonthly = isChallenge ? accounts * monthlySubscription : 0;
+        const afterRecurringMonthly = tradingMonthlyTotal - recurringCostMonthly;
+        const afterRecurringAnnual = afterRecurringMonthly * 12;
+        const afterRecurringDaily = TRADING_DAYS_MONTH > 0 ? afterRecurringMonthly / TRADING_DAYS_MONTH : 0;
+
+        const activationPerAccount = activationEnabled ? activationFeeAmount : 0;
+        const oneTimePerAccount = avgAccountCost + activationPerAccount;
+        const oneTimeTotal = accounts * oneTimePerAccount;
+
+        document.getElementById('dailyResult').innerText = formatter.format(tradingDailyTotal);
+        document.getElementById('monthlyResult').innerText = formatter.format(tradingMonthlyTotal);
+        document.getElementById('annualResult').innerText = formatter.format(tradingAnnualTotal);
+
+        document.getElementById('afterDailyResult').innerText = formatter.format(afterRecurringDaily);
+        document.getElementById('afterMonthlyResult').innerText = formatter.format(afterRecurringMonthly);
+        document.getElementById('afterAnnualResult').innerText = formatter.format(afterRecurringAnnual);
+
+        document.getElementById('oneTimePerAccount').innerText = formatter.format(oneTimePerAccount);
+        document.getElementById('oneTimeTotal').innerText = formatter.format(oneTimeTotal);
+
+        const perAfterDaily = accounts > 0 ? afterRecurringDaily / accounts : 0;
+        const perAfterMonthly = accounts > 0 ? afterRecurringMonthly / accounts : 0;
+        const perAfterAnnual = accounts > 0 ? afterRecurringAnnual / accounts : 0;
+
+        document.getElementById('perAccDaily').innerText = formatter.format(netDailyPerAccount);
+        document.getElementById('perAccMonthly').innerText = formatter.format(netDailyPerAccount * TRADING_DAYS_MONTH);
+        document.getElementById('perAccAnnual').innerText = formatter.format(netDailyPerAccount * TRADING_DAYS_YEAR);
+
+        document.getElementById('perAccAfterDaily').innerText = formatter.format(perAfterDaily);
+        document.getElementById('perAccAfterMonthly').innerText = formatter.format(perAfterMonthly);
+        document.getElementById('perAccAfterAnnual').innerText = formatter.format(perAfterAnnual);
+
+        const negativeTrading = netDailyPerAccount < 0;
+        const negativeAfterRecurring = afterRecurringMonthly < 0;
+
+        const tradingCards = [
+            document.getElementById('cardDaily'),
+            document.getElementById('cardMonthly'),
+            document.getElementById('cardAnnual')
+        ];
+        tradingCards.forEach(el => {
+            el.classList.toggle('negative', negativeTrading);
+        });
+
+        const afterCards = [
+            document.getElementById('cardAfterDaily'),
+            document.getElementById('cardAfterMonthly'),
+            document.getElementById('cardAfterAnnual')
+        ];
+        afterCards.forEach(el => {
+            el.classList.remove('negative', 'after-costs-warn');
+            if (negativeAfterRecurring) {
+                el.classList.add('negative');
+            } else if (!negativeTrading && afterRecurringMonthly < tradingMonthlyTotal && isChallenge && recurringCostMonthly > 0) {
+                el.classList.add('after-costs-warn');
+            }
+        });
+
+        const perSection = document.getElementById('perAccountSection');
+        perSection.classList.toggle('negative', negativeTrading);
+        perSection.classList.toggle('after-costs-negative', negativeAfterRecurring && !negativeTrading);
+
+        const effectiveBox = document.getElementById('effectiveMonthlyBox');
+        if (amortizeMonths > 0 && oneTimeTotal > 0) {
+            const amortMonthly = oneTimeTotal / amortizeMonths;
+            const effectiveMonthly = afterRecurringMonthly - amortMonthly;
+            const effectiveAnnual = effectiveMonthly * 12;
+            document.getElementById('effectiveMonthly').innerText = formatter.format(effectiveMonthly);
+            document.getElementById('effectiveAnnual').innerText = formatter.format(effectiveAnnual);
+            effectiveBox.classList.remove('hidden');
+        } else {
+            effectiveBox.classList.add('hidden');
+        }
+
+        const footerEl = document.getElementById('dynamicFooter');
+        footerEl.innerHTML =
+            `Trading P&amp;L uses <strong>${TRADING_DAYS_MONTH}</strong> trading days/mo → <strong>${TRADING_DAYS_YEAR}</strong> trading days/yr. ` +
+            `Monthly subscription (Challenge) is per <strong>calendar</strong> month. ` +
+            `Net daily after costs spreads the calendar-month subscription across <strong>${TRADING_DAYS_MONTH}</strong> active trading days (estimate).`;
+
+        const foot = document.getElementById('costsFootnote');
+        if (isChallenge && recurringCostMonthly > tradingMonthlyTotal && tradingMonthlyTotal >= 0) {
+            foot.textContent = 'Subscription exceeds trading-month estimate: negative net monthly is a business cashflow issue, not necessarily negative per-trade expectancy.';
+        } else if (negativeAfterRecurring && !negativeTrading) {
+            foot.textContent = 'Net after recurring costs is negative while trading expectancy is positive: subscriptions or scale may exceed edge.';
+        } else {
+            foot.textContent = '';
+        }
+
+        document.getElementById('firstPayoutAmounts').innerText = formatter.format(firstPayout * (split / 100));
+        document.getElementById('recurringPayoutAmounts').innerText = formatter.format(recurringPayout * (split / 100));
+
+        document.getElementById('totalFirstNet').innerText = formatter.format(firstPayout * (split / 100) * accounts);
+        document.getElementById('totalRecurringNet').innerText = formatter.format(recurringPayout * (split / 100) * accounts);
+
+        const firstTarget = buffer + firstPayout;
+        const timeFirstEl = document.getElementById('timeToFirst');
+        const timeRecEl = document.getElementById('timeToRecurring');
+
+        if (evPerAccount > 0) {
+            const daysToFirst = Math.ceil(firstTarget / evPerAccount);
+            const daysToRec = Math.ceil(recurringPayout / evPerAccount);
+
+            let firstText = `${daysToFirst} Trading Days`;
+            if (daysToFirst >= TRADING_DAYS_MONTH) {
+                firstText += `<br><span style="font-size: 0.85em; color: #94a3b8; font-weight: normal;">(${(daysToFirst / TRADING_DAYS_MONTH).toFixed(1)} Months)</span>`;
+            }
+            timeFirstEl.innerHTML = firstText;
+
+            let recText = `Every ${daysToRec} Trading Days`;
+            if (daysToRec >= TRADING_DAYS_MONTH) {
+                recText += `<br><span style="font-size: 0.85em; color: #94a3b8; font-weight: normal;">(${(daysToRec / TRADING_DAYS_MONTH).toFixed(1)} Months)</span>`;
+            }
+            timeRecEl.innerHTML = recText;
+        } else {
+            timeFirstEl.innerHTML = 'N/A (Losing)';
+            timeRecEl.innerHTML = 'N/A (Losing)';
+        }
+
+        const riskEl = document.getElementById('consecutiveLosses');
+        if (loss > 0 && maxDrawdown > 0) {
+            const daysToBlow = Math.floor(maxDrawdown / loss);
+            riskEl.innerText = `${daysToBlow} Trading Days`;
+        } else {
+            riskEl.innerText = 'N/A';
+        }
+    }
+</script>
+
+</body>
+</html>
