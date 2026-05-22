@@ -106,6 +106,24 @@
             cursor: not-allowed;
         }
 
+        .fee-switch-row.disabled-field {
+            opacity: 0.55;
+            pointer-events: none;
+        }
+
+        .fee-switch-row.disabled-field .fee-switch-label {
+            color: #64748b;
+        }
+
+        #activationGroup.activation-unavailable label {
+            color: #64748b;
+        }
+
+        #activationGroup.activation-unavailable input {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
         .tooltip {
             position: relative;
             display: inline-flex;
@@ -419,26 +437,6 @@
         .result-card.highlight {
             background: linear-gradient(to right, var(--primary), var(--secondary));
             border: none;
-        }
-
-        /* Trading income row — cyan / sky accent */
-        .result-card.result-trading-income {
-            border-color: rgba(56, 189, 248, 0.5);
-            background: linear-gradient(145deg, rgba(14, 116, 144, 0.22), rgba(15, 23, 42, 0.96));
-        }
-
-        .result-card.result-trading-income.highlight {
-            background: linear-gradient(125deg, #0ea5e9, #0369a1);
-            border: none;
-        }
-
-        .result-card.result-trading-income.negative {
-            border-color: var(--danger);
-            background: linear-gradient(145deg, rgba(127, 29, 29, 0.35), rgba(15, 23, 42, 0.96));
-        }
-
-        .result-card.result-trading-income.highlight.negative {
-            background: linear-gradient(to right, #7f1d1d, #b91c1c);
         }
 
         /* Net after profit split row — violet / indigo accent */
@@ -792,6 +790,68 @@
             margin-top: 1rem;
         }
 
+        .payout-timeline-block,
+        .consistency-risk-block {
+            margin-top: 1.5rem;
+        }
+
+        .payout-timeline-block .section-head,
+        .consistency-risk-block .section-head {
+            margin-bottom: 0.75rem;
+        }
+
+        .payout-timeline-block .timeline-banner {
+            margin-bottom: 0.5rem;
+        }
+
+        .consistency-risk-block .total-payout-box + .total-payout-box {
+            margin-top: 0.85rem;
+        }
+
+        .consistency-note {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            line-height: 1.45;
+            margin-top: 0.65rem;
+        }
+
+        .consistency-alert {
+            display: none;
+            margin-top: 0.75rem;
+            padding: 0.65rem 0.85rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--danger);
+            background: rgba(127, 29, 29, 0.4);
+            color: #fecaca;
+            font-size: 0.82rem;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .consistency-alert strong {
+            color: #f87171;
+        }
+
+        #consistencyResultsBox.consistency-alert-active {
+            border-color: var(--danger);
+        }
+
+        .consistency-off-msg {
+            color: #64748b;
+            font-size: 0.85rem;
+            line-height: 1.45;
+        }
+
+        .dashboard-table tr.rb-group-head td {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.055em;
+            padding-top: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
         .spend-table-title {
             font-size: 0.72rem;
             font-weight: 600;
@@ -822,7 +882,7 @@
         }
     </style>
 </head>
-<body onload="onFeeToggles(); calculate();">
+<body onload="onAccountModeToggles(); onConsistencyToggles(); calculate();">
 
 <div class="container">
 
@@ -841,14 +901,14 @@
         <div class="input-group">
             <label for="avgProfit">
                 Average daily win ($)
-                <div class="tooltip tooltip-below">?<span class="tooltip-text">Average gross profit on a winning day, per account (evaluation size; scaling applies after pass).</span></div>
+                <div class="tooltip tooltip-below">?<span class="tooltip-text" id="tooltipAvgProfit">Average gross profit on a winning day, per account (evaluation size; scaling applies after pass).</span></div>
             </label>
             <input type="number" id="avgProfit" placeholder="e.g. 100" value="100" oninput="calculate()">
         </div>
         <div class="input-group">
             <label for="avgLoss">
                 Average daily loss ($)
-                <div class="tooltip tooltip-below">?<span class="tooltip-text">Average gross loss on a losing day, per account (evaluation size; scaling applies after pass).</span></div>
+                <div class="tooltip tooltip-below">?<span class="tooltip-text" id="tooltipAvgLoss">Average gross loss on a losing day, per account (evaluation size; scaling applies after pass).</span></div>
             </label>
             <input type="number" id="avgLoss" placeholder="e.g. 100" value="100" oninput="calculate()">
         </div>
@@ -856,35 +916,18 @@
 
     <div class="input-grid">
         <div class="input-group">
-            <label for="accCount">
-                Number of accounts
-                <div class="tooltip tooltip-below">?<span class="tooltip-text">How many accounts share these assumptions (parallel evaluations or funded accounts).</span></div>
-            </label>
-            <input type="number" id="accCount" placeholder="e.g. 10" value="5" oninput="calculate()">
-        </div>
-        <div class="input-group">
             <label for="tradingDays">
                 Trading days per month <span style="font-weight:normal;color:#64748b">(max 21)</span>
                 <div class="tooltip tooltip-below">?<span class="tooltip-text">Average number of days per month you expect to trade (capped at 21). Converts daily $ into a &quot;trading month&quot; and yearly estimate.</span></div>
             </label>
             <input type="number" id="tradingDays" placeholder="e.g. 21" value="21" max="21" oninput="calculate()">
         </div>
-    </div>
-
-    <div class="input-grid">
         <div class="input-group">
             <label for="winRate">
                 Win rate (%)
                 <div class="tooltip tooltip-below">?<span class="tooltip-text">Percent of trading days that close with a profit.</span></div>
             </label>
             <input type="number" id="winRate" placeholder="e.g. 65" value="65" oninput="calculate()">
-        </div>
-        <div class="input-group">
-            <label for="scalingPlan">
-                Scaling plan (%)
-                <div class="tooltip tooltip-below">?<span class="tooltip-text">100% = same average win and loss as above for funded modeling. Lower values shrink both (e.g. 50% halves them) for <strong>Results</strong> (gross/net cards), funded timelines, and drawdown risk. Evaluation length (Step 1 in Payouts) always uses full evaluation size.</span></div>
-            </label>
-            <input type="number" id="scalingPlan" placeholder="e.g. 100" value="100" min="0" max="100" step="1" oninput="calculate()">
         </div>
     </div>
 
@@ -894,6 +937,15 @@
     <details class="costs-phase">
         <summary>2 · Firm and fees</summary>
         <div class="planner-content">
+            <div class="fee-switch-row">
+                <span class="fee-switch-label">Direct to funded account</span>
+                <label class="switch" title="Off = evaluation account (profit target and scaling apply). On = you start on a funded account with no evaluation phase.">
+                    <input type="checkbox" id="directToFunded" onchange="onAccountModeToggles(); calculate();">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <p class="costs-footnote" id="accountTypeNote" style="margin-top: 0; margin-bottom: 0.85rem;">Evaluation account: use profit target and scaling plan for time-to-pass and funded-stage sizing.</p>
+
             <div class="input-group full-width">
                 <label for="profitSplit">
                     Profit split (%)
@@ -902,11 +954,43 @@
                 <input type="number" id="profitSplit" placeholder="e.g. 90" value="90" oninput="calculate()">
             </div>
 
+            <div class="input-group" id="consistencyPctGroup">
+                <div class="fee-switch-row" id="consistencySwitchRow">
+                    <span class="fee-switch-label">Consistency rule (funded)</span>
+                    <label class="switch" title="Caps single-day gross profit toward a planned funded withdrawal">
+                        <input type="checkbox" id="consistencyEnabled" onchange="onConsistencyToggles(); calculate();" aria-label="Enable consistency rule for funded payouts">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <label for="consistencyPct">
+                    Consistency rule (%)
+                    <div class="tooltip">?<span class="tooltip-text">Funded account only (evaluation or direct to funded). At 20% with a $1,000 gross first payout, no single trading day may contribute more than $200 gross toward qualifying for that withdrawal. Same % applies to each recurring gross payout. Turn the switch off if your firm has no consistency rule.</span></div>
+                </label>
+                <input type="number" id="consistencyPct" placeholder="e.g. 20" value="20" min="0" max="100" step="1" oninput="calculate()">
+            </div>
+
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="accCount">
+                        Number of accounts
+                        <div class="tooltip tooltip-below">?<span class="tooltip-text">How many accounts share these assumptions (parallel evaluations or funded accounts).</span></div>
+                    </label>
+                    <input type="number" id="accCount" placeholder="e.g. 10" value="5" oninput="calculate()">
+                </div>
+                <div class="input-group" id="scalingPlanGroup">
+                    <label for="scalingPlan">
+                        Scaling plan (%)
+                        <div class="tooltip tooltip-below">?<span class="tooltip-text">Evaluation path only. 100% = same average win and loss as Core for funded modeling after pass. Lower values shrink both for Results and funded timelines.</span></div>
+                    </label>
+                    <input type="number" id="scalingPlan" placeholder="e.g. 100" value="100" min="0" max="100" step="1" oninput="calculate()">
+                </div>
+            </div>
+
             <div class="input-group" id="accountFeeGroup">
-                <div class="fee-switch-row">
+                <div class="fee-switch-row" id="accountFeeRecurringRow">
                     <span class="fee-switch-label">Account fee bills every calendar month</span>
                     <label class="switch" title="If on, the same dollar amount each calendar month. If off, it is a one-time fee only.">
-                        <input type="checkbox" id="accountFeeRecurring" onchange="onFeeToggles(); calculate();">
+                        <input type="checkbox" id="accountFeeRecurring" onchange="onAccountModeToggles(); calculate();">
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -918,10 +1002,10 @@
             </div>
 
             <div class="input-group" id="activationGroup">
-                <div class="fee-switch-row">
+                <div class="fee-switch-row" id="activationSwitchRow">
                     <span class="fee-switch-label">Activation fee (when you pass)</span>
                     <label class="switch" title="Charged once when you pass to funded, not during the evaluation">
-                        <input type="checkbox" id="activationEnabled" onchange="onFeeToggles(); calculate();">
+                        <input type="checkbox" id="activationEnabled" onchange="onAccountModeToggles(); calculate();">
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -932,7 +1016,7 @@
                 <input type="number" id="activationFeeAmount" placeholder="e.g. 100" value="0" min="0" oninput="calculate()">
             </div>
 
-            <div class="input-group full-width">
+            <div class="input-group full-width" id="evalProfitTargetGroup">
                 <label for="evalProfitTarget">
                     Evaluation profit target ($ per account)
                     <div class="tooltip">?<span class="tooltip-text">The firm’s profit target on the evaluation account—the gross P&amp;L the eval must show to pass. This planner uses that number to estimate evaluation length and, when the account fee is monthly, how many calendar-month fees accrue before pass.</span></div>
@@ -947,10 +1031,6 @@
     <details class="payout-planner">
         <summary>Payouts &amp; drawdown risk</summary>
         <div class="planner-content">
-
-            <div class="timeline-banner" id="timelineBanner">
-                <strong>Funded account starts at zero:</strong> After you pass, the funded account is modeled from <strong>$0</strong> gross profit. Buffer and first payout only build from <strong>new</strong> funded gross edge. Evaluation length uses the <strong>evaluation profit target</strong> in Firm and fees. Activation (if any) is money at pass, not during the evaluation.<span id="timelineScalingHint"></span>
-            </div>
 
             <div class="input-grid">
                 <div class="input-group">
@@ -986,82 +1066,67 @@
                 </div>
             </div>
 
-            <div class="timeline-flow" role="list" aria-label="Payout timeline steps">
-                <div class="payout-card timeline-card" role="listitem">
-                    <div class="result-label">Step 1 · Evaluation to pass</div>
-                    <div class="result-value" id="timeToEvalPass">—</div>
-                </div>
-                <div class="timeline-arrow" aria-hidden="true">
-                    <span class="timeline-arrow-line"></span>
-                    <span class="timeline-arrow-head">▼</span>
-                </div>
-                <div class="payout-card timeline-card" role="listitem">
-                    <div class="result-label">Step 2 · Funded from zero to first payout</div>
-                    <div class="result-value" id="timeToFirst">—</div>
-                </div>
-                <div class="timeline-arrow" aria-hidden="true">
-                    <span class="timeline-arrow-line"></span>
-                    <span class="timeline-arrow-head">▼</span>
-                </div>
-                <div class="payout-card timeline-card" role="listitem">
-                    <div class="result-label">Step 3 · Recurring withdrawals on funded</div>
-                    <div class="result-value" id="timeToRecurring">—</div>
-                </div>
-            </div>
-
-            <div class="total-payout-box">
-                <div class="result-label">Net Take-Home Payouts (After Split)</div>
-                <div class="payout-split-info">
-
-                    <div class="payout-column">
-                        <div class="payout-header">1st Payout</div>
-                        <div>Per account: <strong id="firstPayoutAmounts">$0</strong></div>
-                        <div>Total: <strong id="totalFirstNet">$0</strong></div>
-                    </div>
-
-                    <div class="payout-divider"></div>
-
-                    <div class="payout-column">
-                        <div class="payout-header">Recurring</div>
-                        <div>Per account: <strong id="recurringPayoutAmounts">$0</strong></div>
-                        <div>Total: <strong id="totalRecurringNet">$0</strong></div>
-                    </div>
-
-                </div>
-            </div>
-
-            <div class="total-payout-box" style="margin-top: 1rem; border-color: #334155;">
-                <div class="result-label" style="color: #94a3b8;">Risk Management Metric</div>
-                <div class="payout-split-info">
-                    <div>Consecutive losses to liquidate (est.): <strong id="consecutiveLosses" style="color: var(--danger);">—</strong></div>
-                </div>
-            </div>
-
         </div>
     </details>
 
-    <div class="section-head">3 · Results</div>
+    <div class="payout-timeline-block">
+        <div class="section-head">Payout timeline</div>
+        <p class="dashboard-note" style="margin: 0 0 0.75rem;">Uses buffer and payout amounts from <strong>Payouts &amp; drawdown risk</strong>. Net take-home is in <strong>Results breakdown</strong>.</p>
 
-    <div class="section-label">Trading income</div>
-    <p class="dashboard-note" id="resultsScalingCaption" style="margin: 0.35rem 0 0.75rem;">Expected gross P&amp;L before the profit split (funded scaling).</p>
-    <div class="results-grid">
-        <div class="result-card result-trading-income" id="cardGrossDaily">
-            <div class="result-label">Daily</div>
-            <div class="result-value" id="grossDailyResult">$0</div>
+        <div class="timeline-banner" id="timelineBanner">
+            <strong>Funded account starts at zero:</strong> After you pass, the funded account is modeled from <strong>$0</strong> gross profit. Buffer and first payout only build from <strong>new</strong> funded gross edge. Evaluation length uses the <strong>evaluation profit target</strong> in Firm and fees. Activation (if any) is money at pass, not during the evaluation.<span id="timelineScalingHint"></span>
         </div>
-        <div class="result-card result-trading-income" id="cardGrossMonthly">
-            <div class="result-label">Monthly</div>
-            <div class="result-value" id="grossMonthlyResult">$0</div>
-        </div>
-        <div class="result-card result-trading-income highlight" id="cardGrossAnnual">
-            <div class="result-label">Annual</div>
-            <div class="result-value" id="grossAnnualResult">$0</div>
+
+        <div class="timeline-flow" role="list" aria-label="Payout timeline steps">
+            <div class="payout-card timeline-card" id="timelineStepEval" role="listitem">
+                <div class="result-label">Step 1 · Evaluation to pass</div>
+                <div class="result-value" id="timeToEvalPass">—</div>
+            </div>
+            <div class="timeline-arrow" id="timelineArrowAfterEval" aria-hidden="true">
+                <span class="timeline-arrow-line"></span>
+                <span class="timeline-arrow-head">▼</span>
+            </div>
+            <div class="payout-card timeline-card" role="listitem">
+                <div class="result-label">Step 2 · Funded from zero to first payout</div>
+                <div class="result-value" id="timeToFirst">—</div>
+            </div>
+            <div class="timeline-arrow" aria-hidden="true">
+                <span class="timeline-arrow-line"></span>
+                <span class="timeline-arrow-head">▼</span>
+            </div>
+            <div class="payout-card timeline-card" role="listitem">
+                <div class="result-label">Step 3 · Recurring withdrawals on funded</div>
+                <div class="result-value" id="timeToRecurring">—</div>
+            </div>
         </div>
     </div>
 
-    <div class="section-label" id="netAfterSplitSectionLabel" style="margin-top: 1.25rem;">Net after profit split</div>
+    <div class="consistency-risk-block">
+        <div class="section-head">Funded consistency &amp; risk</div>
+        <p class="dashboard-note" style="margin: 0 0 0.75rem;">Consistency inputs are in <strong>Firm and fees</strong>. Caps use gross payouts from <strong>Payouts &amp; drawdown risk</strong>; net take-home is in <strong>Results breakdown</strong>.</p>
+
+        <div class="total-payout-box" id="consistencyResultsBox">
+            <div class="result-label">Consistency rule (funded payouts)</div>
+            <div class="payout-split-info" id="consistencyResultsContent">
+                <p class="consistency-off-msg">Turn on <strong>Consistency rule (funded)</strong> in Firm and fees to see daily gross caps.</p>
+            </div>
+            <p class="consistency-alert" id="consistencyAlert" role="alert"></p>
+            <p class="consistency-note" id="consistencyResultsNote"></p>
+        </div>
+
+        <div class="total-payout-box" style="border-color: #334155;">
+            <div class="result-label" style="color: #94a3b8;">Risk management metric</div>
+            <div class="payout-split-info">
+                <div>Consecutive losses to liquidate (est.): <strong id="consecutiveLosses" style="color: var(--danger);">—</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-head">3 · Results</div>
+
+    <div class="section-label" id="netAfterSplitSectionLabel">Net after profit split</div>
     <p class="dashboard-note" id="resultsNetSplitCaption" style="margin: 0.35rem 0 0.75rem;">Your share after the firm’s profit split (no account fees yet).</p>
-    <div class="results-grid" style="margin-top: 0.75rem;">
+    <div class="results-grid">
         <div class="result-card result-net-split" id="cardDaily">
             <div class="result-label">Daily</div>
             <div class="result-value" id="dailyResult">$0</div>
@@ -1088,21 +1153,6 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>Trading income (gross) — per trading day</td>
-                    <td id="rbGrossPerAccDay">—</td>
-                    <td id="rbGrossTotalDay">—</td>
-                </tr>
-                <tr>
-                    <td>Trading income (gross) — per trading month</td>
-                    <td id="rbGrossPerAccMonth">—</td>
-                    <td id="rbGrossTotalMonth">—</td>
-                </tr>
-                <tr>
-                    <td>Trading income (gross) — per year</td>
-                    <td id="rbGrossPerAccYear">—</td>
-                    <td id="rbGrossTotalYear">—</td>
-                </tr>
-                <tr>
                     <td id="rbDescNetSplitDay">Net after profit split — per trading day</td>
                     <td id="rbTradePerAccDay">—</td>
                     <td id="rbTradeTotalDay">—</td>
@@ -1117,9 +1167,22 @@
                     <td id="rbTradePerAccYear">—</td>
                     <td id="rbTradeTotalYear">—</td>
                 </tr>
+                <tr class="rb-group-head">
+                    <td colspan="3">Net take-home payouts (after split)</td>
+                </tr>
+                <tr>
+                    <td>1st payout</td>
+                    <td id="firstPayoutAmounts">—</td>
+                    <td id="totalFirstNet">—</td>
+                </tr>
+                <tr>
+                    <td>Recurring payout</td>
+                    <td id="recurringPayoutAmounts">—</td>
+                    <td id="totalRecurringNet">—</td>
+                </tr>
             </tbody>
         </table>
-        <p class="dashboard-note"><strong>Trading income</strong> and <strong>net after split</strong> here use your <strong>scaling plan</strong> (funded). Evaluation timing in <strong>Payouts</strong> still uses full evaluation size. Firm charges are in <strong>Spend planner</strong>.</p>
+        <p class="dashboard-note" id="resultsBreakdownNote"><strong>Net after split</strong> and <strong>payout take-home</strong> use profit split and payout amounts from Firm and fees / Payouts. Funded trading rows use your <strong>scaling plan</strong>. Firm charges are in <strong>Spend planner</strong>.</p>
     </div>
 
     <div class="section-head">4 · Spending and timeline</div>
@@ -1199,7 +1262,7 @@
     </div>
 
     <div class="key-legend" id="keyLegend">
-        <strong>How to read this tool:</strong> <em>Trading days</em> are days you trade. A <em>trading month</em> here means that many trading days (your &quot;trading days per month&quot; setting). A <em>calendar month</em> is a real month on the calendar (used when your account fee bills monthly). <strong>Results</strong> show gross and net after split for the <em>funded</em> stage using your <em>scaling plan</em> (100% matches evaluation size). Evaluation length in <strong>Payouts</strong> uses full evaluation edge. <strong>Spend planner</strong> lists timelines and firm fees separately.
+        <strong>How to read this tool:</strong> <em>Trading days</em> are days you trade. A <em>trading month</em> here means that many trading days (your &quot;trading days per month&quot; setting). A <em>calendar month</em> is a real month on the calendar (used when your account fee bills monthly). <strong>Results</strong> show net after profit split for the <em>funded</em> stage using your <em>scaling plan</em> (100% matches evaluation size). Evaluation length in <strong>Payouts</strong> uses full evaluation edge. <strong>Spend planner</strong> lists timelines and firm fees separately.
     </div>
 
     <div class="footer" id="dynamicFooter">
@@ -1215,12 +1278,56 @@
         return `${tradingDays} trading days (~${approxMonths} months at ${perMonth} trading days per month)`;
     }
 
-    function onFeeToggles() {
-        const actOn = document.getElementById('activationEnabled').checked;
+    function onConsistencyToggles() {
+        const on = document.getElementById('consistencyEnabled').checked;
+        const pctInput = document.getElementById('consistencyPct');
+        const pctGroup = document.getElementById('consistencyPctGroup');
+        if (pctInput) pctInput.disabled = !on;
+        if (pctGroup) pctGroup.classList.toggle('disabled-field', !on);
+    }
+
+    function onAccountModeToggles() {
+        const directToFunded = document.getElementById('directToFunded').checked;
+
+        const evalGroup = document.getElementById('evalProfitTargetGroup');
+        const evalInput = document.getElementById('evalProfitTarget');
+        const scalingGroup = document.getElementById('scalingPlanGroup');
+        const scalingInput = document.getElementById('scalingPlan');
+        if (evalInput) evalInput.disabled = directToFunded;
+        if (evalGroup) evalGroup.classList.toggle('disabled-field', directToFunded);
+        if (scalingInput) scalingInput.disabled = directToFunded;
+        if (scalingGroup) scalingGroup.classList.toggle('disabled-field', directToFunded);
+
+        const feeRecurringEl = document.getElementById('accountFeeRecurring');
+        const feeRecurringRow = document.getElementById('accountFeeRecurringRow');
+        if (directToFunded) {
+            feeRecurringEl.checked = false;
+            feeRecurringEl.disabled = true;
+            if (feeRecurringRow) feeRecurringRow.classList.add('disabled-field');
+        } else {
+            feeRecurringEl.disabled = false;
+            if (feeRecurringRow) feeRecurringRow.classList.remove('disabled-field');
+        }
+
+        const actToggle = document.getElementById('activationEnabled');
         const actInput = document.getElementById('activationFeeAmount');
         const actGroup = document.getElementById('activationGroup');
-        actInput.disabled = !actOn;
-        actGroup.classList.toggle('disabled-field', !actOn);
+        const actSwitchRow = document.getElementById('activationSwitchRow');
+        if (directToFunded) {
+            actToggle.checked = false;
+            actToggle.disabled = true;
+            actInput.disabled = true;
+            actGroup.classList.remove('disabled-field');
+            actGroup.classList.add('activation-unavailable');
+            if (actSwitchRow) actSwitchRow.classList.add('disabled-field');
+        } else {
+            actGroup.classList.remove('activation-unavailable');
+            actToggle.disabled = false;
+            const actOn = actToggle.checked;
+            actInput.disabled = !actOn;
+            actGroup.classList.toggle('disabled-field', !actOn);
+            if (actSwitchRow) actSwitchRow.classList.toggle('disabled-field', !actOn);
+        }
     }
 
     function calculate() {
@@ -1239,10 +1346,11 @@
         const loss = parseFloat(document.getElementById('avgLoss').value) || 0;
         const accounts = parseFloat(document.getElementById('accCount').value) || 0;
         const winRate = parseFloat(document.getElementById('winRate').value) || 0;
+        const directToFunded = document.getElementById('directToFunded').checked;
         let scalingPlanPct = parseFloat(document.getElementById('scalingPlan').value);
         if (!Number.isFinite(scalingPlanPct)) scalingPlanPct = 100;
         scalingPlanPct = Math.min(100, Math.max(0, scalingPlanPct));
-        const fundedScale = scalingPlanPct / 100;
+        const fundedScale = directToFunded ? 1 : scalingPlanPct / 100;
         const split = parseFloat(document.getElementById('profitSplit').value) || 0;
 
         const buffer = parseFloat(document.getElementById('bufferAmount').value) || 0;
@@ -1250,12 +1358,21 @@
         const recurringPayout = parseFloat(document.getElementById('recurringPayout').value) || 0;
         const maxDrawdown = parseFloat(document.getElementById('maxDrawdown').value) || 0;
 
-        const accountFeeRecurring = document.getElementById('accountFeeRecurring').checked;
+        const consistencyEnabled = document.getElementById('consistencyEnabled').checked;
+        let consistencyPct = parseFloat(document.getElementById('consistencyPct').value);
+        if (!Number.isFinite(consistencyPct)) consistencyPct = 0;
+        consistencyPct = Math.min(100, Math.max(0, consistencyPct));
+
+        const accountFeeRecurring = directToFunded
+            ? false
+            : document.getElementById('accountFeeRecurring').checked;
         const accountFeeRaw = parseFloat(document.getElementById('accountFeeAmount').value) || 0;
         const monthlyAcctFee = accountFeeRecurring ? accountFeeRaw : 0;
         const oneTimeAcctFeePerAcc = !accountFeeRecurring ? accountFeeRaw : 0;
 
-        const activationEnabled = document.getElementById('activationEnabled').checked;
+        const activationEnabled = directToFunded
+            ? false
+            : document.getElementById('activationEnabled').checked;
         const activationFeeAmount = parseFloat(document.getElementById('activationFeeAmount').value) || 0;
 
         const evalProfitTarget = parseFloat(document.getElementById('evalProfitTarget').value) || 0;
@@ -1279,10 +1396,6 @@
 
         const tradingMonthlyTotalEval = netDailyPerAccountEval * TRADING_DAYS_MONTH * accounts;
 
-        const grossDailyTotal = evPerAccountFunded * accounts;
-        const grossMonthlyTotal = grossDailyTotal * TRADING_DAYS_MONTH;
-        const grossAnnualTotal = evPerAccountFunded * TRADING_DAYS_YEAR * accounts;
-
         const tradingDailyTotal = netDailyPerAccountFunded * accounts;
         const tradingMonthlyTotal = tradingDailyTotal * TRADING_DAYS_MONTH;
         const tradingAnnualTotal = netDailyPerAccountFunded * TRADING_DAYS_YEAR * accounts;
@@ -1292,7 +1405,7 @@
         let evalDaysPass = null;
         let evalSubBillPeriods = 0;
         let evalSubCostDuringEval = 0;
-        if (evalProfitTarget > 0 && evPerAccount > 0) {
+        if (!directToFunded && evalProfitTarget > 0 && evPerAccount > 0) {
             evalDaysPass = Math.ceil(evalProfitTarget / evPerAccount);
             evalSubBillPeriods = Math.ceil(evalDaysPass / TRADING_DAYS_MONTH);
             if (accountFeeRecurring && monthlyAcctFee > 0 && accounts > 0) {
@@ -1300,7 +1413,8 @@
             }
         }
 
-        const afterRecurringMonthly = tradingMonthlyTotalEval - recurringCostMonthly;
+        const feeCompareMonthly = directToFunded ? tradingMonthlyTotal : tradingMonthlyTotalEval;
+        const afterRecurringMonthly = feeCompareMonthly - recurringCostMonthly;
 
         const activationPerAccount = activationEnabled ? activationFeeAmount : 0;
         const oneTimeEvalPerAccount = oneTimeAcctFeePerAcc;
@@ -1320,27 +1434,67 @@
             if (el) el.style.display = vis ? '' : 'none';
         };
 
-        document.getElementById('grossDailyResult').innerText = formatter.format(grossDailyTotal);
-        document.getElementById('grossMonthlyResult').innerText = formatter.format(grossMonthlyTotal);
-        document.getElementById('grossAnnualResult').innerText = formatter.format(grossAnnualTotal);
-
         document.getElementById('dailyResult').innerText = formatter.format(tradingDailyTotal);
         document.getElementById('monthlyResult').innerText = formatter.format(tradingMonthlyTotal);
         document.getElementById('annualResult').innerText = formatter.format(tradingAnnualTotal);
 
-        const resultsCap = document.getElementById('resultsScalingCaption');
-        if (resultsCap) {
-            resultsCap.textContent =
-                scalingPlanPct >= 100
-                    ? 'Gross P&L before profit split — funded stage; 100% matches evaluation size.'
-                    : `Gross P&L before profit split — funded stage at ${scalingPlanPct}% scaling (evaluation length in Payouts still uses full size).`;
-        }
         const netSplitCap = document.getElementById('resultsNetSplitCaption');
         if (netSplitCap) {
-            netSplitCap.textContent =
-                scalingPlanPct >= 100
-                    ? 'Your share after the firm’s profit split (no account fees yet).'
-                    : `Your share after the firm’s split on funded-sized gross (${scalingPlanPct}% scaling).`;
+            if (directToFunded) {
+                netSplitCap.textContent =
+                    'Your share after the firm’s profit split (no account fees yet). Direct to funded uses Core win/loss as funded assumptions.';
+            } else {
+                netSplitCap.textContent =
+                    scalingPlanPct >= 100
+                        ? 'Your share after the firm’s profit split (no account fees yet). Funded stage; 100% matches evaluation size.'
+                        : `Your share after the firm’s profit split (no account fees yet). Funded stage at ${scalingPlanPct}% scaling (evaluation length in Payouts still uses full size).`;
+            }
+        }
+
+        const accountTypeNote = document.getElementById('accountTypeNote');
+        if (accountTypeNote) {
+            accountTypeNote.textContent = directToFunded
+                ? 'Direct to funded: one-time account fee only (no monthly billing or activation). Profit target and scaling plan are not used.'
+                : 'Evaluation account: use profit target and scaling plan for time-to-pass and funded-stage sizing.';
+        }
+
+        const tipProfit = document.getElementById('tooltipAvgProfit');
+        const tipLoss = document.getElementById('tooltipAvgLoss');
+        if (tipProfit) {
+            tipProfit.textContent = directToFunded
+                ? 'Average gross profit on a winning day, per funded account.'
+                : 'Average gross profit on a winning day, per account (evaluation size; scaling applies after pass).';
+        }
+        if (tipLoss) {
+            tipLoss.textContent = directToFunded
+                ? 'Average gross loss on a losing day, per funded account.'
+                : 'Average gross loss on a losing day, per account (evaluation size; scaling applies after pass).';
+        }
+
+        const timelineBanner = document.getElementById('timelineBanner');
+        if (timelineBanner) {
+            if (directToFunded) {
+                timelineBanner.innerHTML =
+                    '<strong>Direct to funded:</strong> You start on a funded account from <strong>$0</strong> gross profit. Buffer and payouts build from your Core trading edge. There is no evaluation phase or profit target.<span id="timelineScalingHint"></span>';
+            } else {
+                timelineBanner.innerHTML =
+                    '<strong>Funded account starts at zero:</strong> After you pass, the funded account is modeled from <strong>$0</strong> gross profit. Buffer and first payout only build from <strong>new</strong> funded gross edge. Evaluation length uses the <strong>evaluation profit target</strong> in Firm and fees. Activation (if any) is money at pass, not during the evaluation.<span id="timelineScalingHint"></span>';
+                const scalingHint = document.getElementById('timelineScalingHint');
+                if (scalingPlanPct < 100 && scalingHint) {
+                    scalingHint.innerHTML =
+                        ` <strong>Scaling ${scalingPlanPct}%:</strong> Results and funded timelines use reduced average win/loss; evaluation Step 1 still uses full size.`;
+                }
+            }
+        }
+
+        setTrVisible('timelineStepEval', !directToFunded);
+        setTrVisible('timelineArrowAfterEval', !directToFunded);
+
+        const rbNote = document.getElementById('resultsBreakdownNote');
+        if (rbNote) {
+            rbNote.innerHTML = directToFunded
+                ? '<strong>Net after split</strong> and <strong>payout take-home</strong> use profit split and Payouts settings. Trading rows use Core assumptions (direct to funded). Firm charges are in <strong>Spend planner</strong>.'
+                : '<strong>Net after split</strong> and <strong>payout take-home</strong> use profit split and Payouts settings. Trading rows use your <strong>scaling plan</strong> (funded). Firm charges are in <strong>Spend planner</strong>.';
         }
 
         const splitHdr = `Net after ${split}% profit split`;
@@ -1352,16 +1506,6 @@
         if (rbD) rbD.textContent = `${splitHdr} — per trading day`;
         if (rbM) rbM.textContent = `${splitHdr} — per trading month`;
         if (rbY) rbY.textContent = `${splitHdr} — per year`;
-
-        const negativeGross = evPerAccountFunded < 0;
-        const grossCards = [
-            document.getElementById('cardGrossDaily'),
-            document.getElementById('cardGrossMonthly'),
-            document.getElementById('cardGrossAnnual')
-        ];
-        grossCards.forEach(el => {
-            if (el) el.classList.toggle('negative', negativeGross);
-        });
 
         const negativeTrading = netDailyPerAccountFunded < 0;
         const negativeTradingEval = netDailyPerAccountEval < 0;
@@ -1381,18 +1525,19 @@
             const el = document.getElementById(id);
             if (el) el.textContent = value;
         };
-        setText('rbGrossPerAccDay', dashFmt(evPerAccountFunded));
-        setText('rbGrossTotalDay', dashFmt(grossDailyTotal));
-        setText('rbGrossPerAccMonth', dashFmt(evPerAccountFunded * TRADING_DAYS_MONTH));
-        setText('rbGrossTotalMonth', dashFmt(grossMonthlyTotal));
-        setText('rbGrossPerAccYear', dashFmt(evPerAccountFunded * TRADING_DAYS_YEAR));
-        setText('rbGrossTotalYear', dashFmt(grossAnnualTotal));
         setText('rbTradePerAccDay', dashFmt(netDailyPerAccountFunded));
         setText('rbTradeTotalDay', dashFmt(tradingDailyTotal));
         setText('rbTradePerAccMonth', dashFmt(netDailyPerAccountFunded * TRADING_DAYS_MONTH));
         setText('rbTradeTotalMonth', dashFmt(tradingMonthlyTotal));
         setText('rbTradePerAccYear', dashFmt(netDailyPerAccountFunded * TRADING_DAYS_YEAR));
         setText('rbTradeTotalYear', dashFmt(tradingAnnualTotal));
+
+        const netFirstPerAcc = firstPayout * (split / 100);
+        const netRecPerAcc = recurringPayout * (split / 100);
+        setText('firstPayoutAmounts', dashFmt(netFirstPerAcc));
+        setText('recurringPayoutAmounts', dashFmt(netRecPerAcc));
+        setText('totalFirstNet', dashFmt(netFirstPerAcc * accounts));
+        setText('totalRecurringNet', dashFmt(netRecPerAcc * accounts));
 
         const subCostPerAccEval =
             accountFeeRecurring && monthlyAcctFee > 0 && evalDaysPass != null
@@ -1401,7 +1546,11 @@
 
         const showFeeMonthly = accountFeeRecurring && monthlyAcctFee > 0;
         const showFeeEvalRecurring =
-            accountFeeRecurring && monthlyAcctFee > 0 && evalDaysPass != null && evalSubCostDuringEval > 0;
+            !directToFunded &&
+            accountFeeRecurring &&
+            monthlyAcctFee > 0 &&
+            evalDaysPass != null &&
+            evalSubCostDuringEval > 0;
         const showFeeOneTimeEval = !accountFeeRecurring && oneTimeEvalPerAccount > 0;
         const showFeeActivation = activationPerAccount > 0;
         const showFeeRollup = oneTimeEvalPerAccount > 0 && activationPerAccount > 0;
@@ -1478,7 +1627,7 @@
         if (feesTable) feesTable.style.display = anyFeeRow ? '' : 'none';
         if (actFoot) actFoot.style.display = anyFeeRow ? '' : 'none';
 
-        const showPlanEval = evalProfitTarget > 0;
+        const showPlanEval = !directToFunded && evalProfitTarget > 0;
         if (showPlanEval) {
             if (evalDaysPass == null || evPerAccount <= 0) {
                 setText('spPlanEval', 'Not available (expected gross per trading day is zero or negative)');
@@ -1489,7 +1638,7 @@
         setTrVisible('spPlanRowEval', showPlanEval);
 
         const showPlanEvalMonths =
-            evalDaysPass != null && accountFeeRecurring && monthlyAcctFee > 0;
+            !directToFunded && evalDaysPass != null && accountFeeRecurring && monthlyAcctFee > 0;
         if (showPlanEvalMonths) {
             const monthsTxt =
                 accounts > 0
@@ -1516,11 +1665,16 @@
 
         const showPlanPath = daysToFirstFunded != null && evPerAccountFunded > 0;
         if (showPlanPath) {
-            const pathDays = evalDaysPass != null ? evalDaysPass + daysToFirstFunded : null;
-            const pathText =
-                pathDays != null
-                    ? `${formatTradingDuration(pathDays, TRADING_DAYS_MONTH)} (evaluation ${evalDaysPass} trading days, then funded ${daysToFirstFunded} trading days)`
-                    : `${formatTradingDuration(daysToFirstFunded, TRADING_DAYS_MONTH)} (funded only — add evaluation target for full path)`;
+            let pathText;
+            if (directToFunded) {
+                pathText = `${formatTradingDuration(daysToFirstFunded, TRADING_DAYS_MONTH)} (direct to funded)`;
+            } else {
+                const pathDays = evalDaysPass != null ? evalDaysPass + daysToFirstFunded : null;
+                pathText =
+                    pathDays != null
+                        ? `${formatTradingDuration(pathDays, TRADING_DAYS_MONTH)} (evaluation ${evalDaysPass} trading days, then funded ${daysToFirstFunded} trading days)`
+                        : `${formatTradingDuration(daysToFirstFunded, TRADING_DAYS_MONTH)} (funded only — add evaluation target for full path)`;
+            }
             setText('spPlanPath', pathText);
         } else {
             setText('spPlanPath', '—');
@@ -1536,7 +1690,7 @@
         const propFeesWarn = document.getElementById('propFeesWarn');
         const foot = document.getElementById('costsFootnote');
         let feeWarnMsg = '';
-        if (accountFeeRecurring && recurringCostMonthly > tradingMonthlyTotalEval && tradingMonthlyTotalEval >= 0) {
+        if (accountFeeRecurring && recurringCostMonthly > feeCompareMonthly && feeCompareMonthly >= 0) {
             feeWarnMsg =
                 'Monthly account fees are larger than this trading month’s after-split income—a cash-flow issue, not necessarily a bad gross edge.';
         } else if (negativeAfterRecurring && !negativeTradingEval) {
@@ -1552,16 +1706,13 @@
         const footerEl = document.getElementById('dynamicFooter');
         footerEl.innerHTML =
             `The core calculator uses <strong>${TRADING_DAYS_MONTH}</strong> trading days per month and <strong>${TRADING_DAYS_YEAR}</strong> trading days per year. ` +
-            `If your account fee is recurring, billing is per <strong>calendar month</strong> per account; estimated months in evaluation set how much recurring fee stacks up before pass.`;
+            (directToFunded
+                ? `If your account fee is recurring, billing is per <strong>calendar month</strong> per account.`
+                : `If your account fee is recurring, billing is per <strong>calendar month</strong> per account; estimated months in evaluation set how much recurring fee stacks up before pass.`);
 
-        document.getElementById('dashboardNote').textContent =
-            'Calendar months in evaluation are estimated using your trading days per month setting. Real firms bill differently; this is a simple planning proxy.';
-
-        document.getElementById('firstPayoutAmounts').innerText = formatter.format(firstPayout * (split / 100));
-        document.getElementById('recurringPayoutAmounts').innerText = formatter.format(recurringPayout * (split / 100));
-
-        document.getElementById('totalFirstNet').innerText = formatter.format(firstPayout * (split / 100) * accounts);
-        document.getElementById('totalRecurringNet').innerText = formatter.format(recurringPayout * (split / 100) * accounts);
+        document.getElementById('dashboardNote').textContent = directToFunded
+            ? 'Direct to funded: plan and timeline rows reflect funded account only. Real firms bill differently; this is a simple planning proxy.'
+            : 'Calendar months in evaluation are estimated using your trading days per month setting. Real firms bill differently; this is a simple planning proxy.';
 
         const timeEvalEl = document.getElementById('timeToEvalPass');
         const timeFirstEl = document.getElementById('timeToFirst');
@@ -1584,7 +1735,7 @@
         if (evPerAccountFunded > 0 && daysToFirstFunded != null) {
             let firstText = `<span style="font-size:1.02rem;font-weight:800;">${formatTradingDuration(daysToFirstFunded, TRADING_DAYS_MONTH)}</span>`;
             firstText += `<br><span style="font-size: 0.8em; color: #94a3b8;">Buffer plus first payout, gross, funded account from zero`;
-            if (scalingPlanPct < 100) {
+            if (!directToFunded && scalingPlanPct < 100) {
                 firstText += ` (at <strong>${scalingPlanPct}%</strong> scaling vs eval)`;
             }
             firstText += `</span>`;
@@ -1597,7 +1748,7 @@
                 const recMo = (daysToRecurringFunded / TRADING_DAYS_MONTH).toFixed(1);
                 recText = `<span style="font-size:1.02rem;font-weight:800;">Every ${daysToRecurringFunded} trading days</span>`;
                 recText += `<br><span style="font-size: 0.82em; color: #94a3b8;">About ${recMo} months between gross withdrawals on funded`;
-                if (scalingPlanPct < 100) {
+                if (!directToFunded && scalingPlanPct < 100) {
                     recText += ` (at <strong>${scalingPlanPct}%</strong> scaling)`;
                 }
                 recText += `</span>`;
@@ -1615,19 +1766,100 @@
         const riskEl = document.getElementById('consecutiveLosses');
         if (lossFunded > 0 && maxDrawdown > 0) {
             const daysToBlow = Math.floor(maxDrawdown / lossFunded);
-            riskEl.innerHTML = `${formatTradingDuration(daysToBlow, TRADING_DAYS_MONTH)} <span style="color:#94a3b8;font-weight:normal;">losing trading days in a row (estimate, funded avg loss${scalingPlanPct < 100 ? ` at ${scalingPlanPct}% scale` : ''})</span>`;
+            riskEl.innerHTML = `${formatTradingDuration(daysToBlow, TRADING_DAYS_MONTH)} <span style="color:#94a3b8;font-weight:normal;">losing trading days in a row (estimate, funded avg loss${!directToFunded && scalingPlanPct < 100 ? ` at ${scalingPlanPct}% scale` : ''})</span>`;
         } else {
             riskEl.innerText = 'Not available';
         }
 
-        const timelineScalingHint = document.getElementById('timelineScalingHint');
-        if (timelineScalingHint) {
-            if (scalingPlanPct < 100) {
-                timelineScalingHint.innerHTML =
-                    ` <strong>Scaling ${scalingPlanPct}%:</strong> Results and funded timelines use reduced average win/loss; evaluation Step 1 still uses full size.`;
-            } else {
-                timelineScalingHint.textContent = '';
+        const consistencyContent = document.getElementById('consistencyResultsContent');
+        const consistencyNote = document.getElementById('consistencyResultsNote');
+        const consistencyAlert = document.getElementById('consistencyAlert');
+        const consistencyBox = document.getElementById('consistencyResultsBox');
+
+        const setConsistencyAlert = (show, html) => {
+            if (consistencyAlert) {
+                consistencyAlert.style.display = show ? 'block' : 'none';
+                consistencyAlert.innerHTML = html || '';
             }
+            if (consistencyBox) consistencyBox.classList.toggle('consistency-alert-active', !!show);
+        };
+
+        if (consistencyContent) {
+            if (!consistencyEnabled) {
+                consistencyContent.innerHTML =
+                    '<p class="consistency-off-msg">Consistency rule is <strong>off</strong>. Enable <strong>Consistency rule (funded)</strong> in Firm and fees to plan daily gross caps toward withdrawals.</p>';
+                if (consistencyNote) consistencyNote.textContent = '';
+                setConsistencyAlert(false);
+            } else if (consistencyPct <= 0) {
+                consistencyContent.innerHTML =
+                    '<p class="consistency-off-msg">Set <strong>Consistency rule (%)</strong> in Firm and fees (e.g. 20 for a 20% cap).</p>';
+                if (consistencyNote) consistencyNote.textContent = '';
+                setConsistencyAlert(false);
+            } else {
+                const maxFirstGross = firstPayout * (consistencyPct / 100);
+                const maxRecurringGross = recurringPayout * (consistencyPct / 100);
+                const pctLabel = consistencyPct % 1 === 0 ? consistencyPct.toFixed(0) : consistencyPct;
+                const avgWinFunded = profitFunded;
+                let colFirst = '<div class="payout-column">';
+                colFirst += '<div class="payout-header">1st payout cap</div>';
+                if (firstPayout > 0) {
+                    colFirst += `<div>Max gross per trading day: <strong>${formatter.format(maxFirstGross)}</strong></div>`;
+                    colFirst += `<div style="font-size:0.8em;color:#94a3b8;">${pctLabel}% of <strong>${formatter.format(firstPayout)}</strong> gross first payout (Payouts)</div>`;
+                } else {
+                    colFirst += '<div style="color:#64748b;">Set first payout ($, gross) in Payouts</div>';
+                }
+                colFirst += '</div>';
+
+                let colRec = '<div class="payout-column">';
+                colRec += '<div class="payout-header">Recurring cap</div>';
+                if (recurringPayout > 0) {
+                    colRec += `<div>Max gross per trading day: <strong>${formatter.format(maxRecurringGross)}</strong></div>`;
+                    colRec += `<div style="font-size:0.8em;color:#94a3b8;">${pctLabel}% of <strong>${formatter.format(recurringPayout)}</strong> gross recurring payout (Payouts)</div>`;
+                } else {
+                    colRec += '<div style="color:#64748b;">Set recurring payout in Payouts</div>';
+                }
+                colRec += '</div>';
+
+                consistencyContent.innerHTML =
+                    colFirst + '<div class="payout-divider"></div>' + colRec;
+                if (consistencyNote) {
+                    consistencyNote.textContent =
+                        `Funded account only. Example at ${pctLabel}%: a ${formatter.format(1000)} gross first payout implies at most ${formatter.format(1000 * consistencyPct / 100)} gross profit in any one trading day toward that withdrawal. Firms vary; this is a planning proxy.`;
+                }
+
+                const capBreaches = [];
+                if (firstPayout > 0 && avgWinFunded > maxFirstGross) {
+                    capBreaches.push(
+                        `1st payout cap (${formatter.format(maxFirstGross)}/winning day)`
+                    );
+                }
+                if (recurringPayout > 0 && avgWinFunded > maxRecurringGross) {
+                    capBreaches.push(
+                        `recurring cap (${formatter.format(maxRecurringGross)}/winning day)`
+                    );
+                }
+                if (capBreaches.length > 0 && avgWinFunded > 0) {
+                    const winLabel =
+                        !directToFunded && scalingPlanPct < 100
+                            ? `${formatter.format(avgWinFunded)} on funded (${scalingPlanPct}% of Core win)`
+                            : formatter.format(avgWinFunded);
+                    setConsistencyAlert(
+                        true,
+                        `<strong>Red alert:</strong> Your average daily win (${winLabel}) is higher than the consistency max for ${capBreaches.join(' and ')}. Either decrease your average daily win in <strong>Core Trading Edge</strong> or increase your planned payout in <strong>Payouts &amp; drawdown risk</strong> (first or recurring).`
+                    );
+                } else {
+                    setConsistencyAlert(false);
+                }
+            }
+        }
+
+        const keyLegend = document.getElementById('keyLegend');
+        if (keyLegend) {
+            keyLegend.innerHTML =
+                '<strong>How to read this tool:</strong> <em>Trading days</em> are days you trade. A <em>trading month</em> here means that many trading days (your &quot;trading days per month&quot; setting). A <em>calendar month</em> is a real month on the calendar (used when your account fee bills monthly). ' +
+                (directToFunded
+                    ? '<strong>Direct to funded</strong> skips evaluation; Results use your Core win/loss as funded assumptions. <strong>Funded consistency &amp; risk</strong> uses payout amounts from <strong>Payouts</strong>. <strong>Spend planner</strong> lists timelines and firm fees separately.'
+                    : '<strong>Results</strong> show net after profit split for the <em>funded</em> stage using your <em>scaling plan</em> (100% matches evaluation size). Evaluation length in <strong>Payouts</strong> uses full evaluation edge. <strong>Consistency rule</strong> applies only on funded withdrawals. <strong>Spend planner</strong> lists timelines and firm fees separately.');
         }
     }
 </script>
