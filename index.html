@@ -7,20 +7,116 @@
 
     <link rel="icon" type="image/png" href="prop-calc-logo.png">
 
+    <script>
+        (function () {
+            const stored = localStorage.getItem('propPlannerTheme');
+            if (stored === 'light' || stored === 'dark') {
+                document.documentElement.setAttribute('data-theme', stored);
+            }
+        })();
+    </script>
+
     <style>
+        html {
+            color-scheme: dark;
+        }
+
+        html[data-theme="light"] {
+            color-scheme: light;
+        }
+
         :root {
             --primary: #00d2ff;
             --secondary: #3a7bd5;
             --danger: #ef4444;
             --warning: #f59e0b;
             --bg: #0f172a;
-            --card-bg: #1e293b;
+            --bg-end: #1e293b;
+            --surface: rgba(30, 41, 59, 0.7);
+            --surface-panel: rgba(15, 23, 42, 0.6);
+            --surface-elevated: rgba(15, 23, 42, 0.75);
+            --surface-inset: rgba(15, 23, 42, 0.45);
             --text: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --text-faint: #64748b;
+            --border: #334155;
+            --border-soft: rgba(51, 65, 85, 0.6);
+            --border-section: rgba(51, 65, 85, 0.5);
+            --input-bg: #0f172a;
+            --input-text: #ffffff;
+            --tooltip-bg: #0f172a;
+            --tooltip-text: #f8fafc;
+            --switch-track: #334155;
+            --switch-thumb: #f8fafc;
+            --card-gradient-start: #1e293b;
+            --card-gradient-end: #0f172a;
+            --container-border: rgba(255, 255, 255, 0.1);
+            --shadow: rgba(0, 0, 0, 0.3);
+            --payout-box-border: var(--secondary);
+            --payout-box-muted-border: #334155;
+            --net-split-tint: rgba(109, 40, 217, 0.2);
+            --net-split-tint-end: rgba(15, 23, 42, 0.96);
+            --negative-tint: rgba(15, 23, 42, 0.96);
+            --timeline-banner-bg: rgba(15, 23, 42, 0.75);
+            --timeline-value: #e2e8f0;
+            --timeline-card-bg: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.55));
+            --timeline-card-border: rgba(58, 123, 213, 0.45);
+            --payout-card-bg: #0f172a;
+            --payout-card-border: #1e293b;
+            --payout-box-bg: linear-gradient(to right, #1e293b, #0f172a);
+            --planner-divider: rgba(255, 255, 255, 0.05);
+            --alert-bg: rgba(127, 29, 29, 0.4);
+            --alert-text: #fecaca;
+            --alert-strong: #f87171;
+        }
+
+        html[data-theme="light"] {
+            --primary: #0369a1;
+            --secondary: #2563eb;
+            --bg: #f1f5f9;
+            --bg-end: #e2e8f0;
+            --surface: rgba(255, 255, 255, 0.96);
+            --surface-panel: #f8fafc;
+            --surface-elevated: #ffffff;
+            --surface-inset: #f1f5f9;
+            --text: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --text-faint: #94a3b8;
+            --border: #cbd5e1;
+            --border-soft: rgba(148, 163, 184, 0.5);
+            --border-section: rgba(148, 163, 184, 0.45);
+            --input-bg: #ffffff;
+            --input-text: #0f172a;
+            --tooltip-bg: #1e293b;
+            --tooltip-text: #f8fafc;
+            --switch-track: #cbd5e1;
+            --switch-thumb: #ffffff;
+            --card-gradient-start: #f8fafc;
+            --card-gradient-end: #f1f5f9;
+            --container-border: rgba(15, 23, 42, 0.08);
+            --shadow: rgba(15, 23, 42, 0.1);
+            --payout-box-muted-border: #cbd5e1;
+            --net-split-tint: rgba(139, 92, 246, 0.14);
+            --net-split-tint-end: rgba(248, 250, 252, 0.98);
+            --negative-tint: rgba(254, 242, 242, 0.95);
+            --timeline-banner-bg: #e0f2fe;
+            --timeline-value: #0f172a;
+            --timeline-card-bg: linear-gradient(145deg, #ffffff, #f1f5f9);
+            --timeline-card-border: rgba(37, 99, 235, 0.35);
+            --payout-card-bg: #ffffff;
+            --payout-card-border: #e2e8f0;
+            --payout-box-bg: linear-gradient(to right, #f8fafc, #f1f5f9);
+            --planner-divider: rgba(15, 23, 42, 0.08);
+            --alert-bg: #fef2f2;
+            --alert-text: #991b1b;
+            --alert-strong: #b91c1c;
         }
 
         body {
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            background: linear-gradient(135deg, var(--bg) 0%, var(--bg-end) 100%);
             color: var(--text);
             display: flex;
             justify-content: center;
@@ -29,15 +125,51 @@
             margin: 0;
             padding: 20px;
             box-sizing: border-box;
+            transition: background 0.25s ease, color 0.25s ease;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 14px;
+            right: 14px;
+            z-index: 1000;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.45rem 0.7rem;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--surface-elevated);
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 14px var(--shadow);
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .theme-toggle:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        .theme-toggle-icon {
+            font-size: 1rem;
+            line-height: 1;
         }
 
         .container {
-            background: rgba(30, 41, 59, 0.7);
+            background: var(--surface);
             backdrop-filter: blur(10px);
             padding: 2rem;
             border-radius: 1.5rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 25px -5px var(--shadow);
+            border: 1px solid var(--container-border);
             width: 100%;
             max-width: min(920px, calc(100vw - 32px));
             overflow: visible;
@@ -93,11 +225,11 @@
             align-items: center;
             margin-bottom: 0.5rem;
             font-size: 0.85rem;
-            color: #94a3b8;
+            color: var(--text-muted);
         }
 
         .input-group.disabled-field label {
-            color: #64748b;
+            color: var(--text-faint);
         }
 
         .input-group.disabled-field input,
@@ -112,11 +244,11 @@
         }
 
         .fee-switch-row.disabled-field .fee-switch-label {
-            color: #64748b;
+            color: var(--text-faint);
         }
 
         #activationGroup.activation-unavailable label {
-            color: #64748b;
+            color: var(--text-faint);
         }
 
         #activationGroup.activation-unavailable input {
@@ -132,8 +264,8 @@
             margin-left: 6px;
             width: 14px;
             height: 14px;
-            background-color: #334155;
-            color: #cbd5e1;
+            background-color: var(--border);
+            color: var(--text-secondary);
             border-radius: 50%;
             font-size: 10px;
             font-weight: bold;
@@ -146,8 +278,8 @@
             visibility: hidden;
             width: max-content;
             max-width: min(320px, calc(100vw - 40px));
-            background-color: #0f172a;
-            color: #f8fafc;
+            background-color: var(--tooltip-bg);
+            color: var(--tooltip-text);
             text-align: left;
             border-radius: 6px;
             padding: 8px 10px;
@@ -161,8 +293,8 @@
             font-size: 0.75rem;
             font-weight: normal;
             line-height: 1.4;
-            border: 1px solid #334155;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 15px -3px var(--shadow);
             pointer-events: none;
             word-wrap: break-word;
         }
@@ -183,7 +315,7 @@
             bottom: auto;
             left: 50%;
             margin-left: -5px;
-            border-color: transparent transparent #334155 transparent;
+            border-color: transparent transparent var(--border) transparent;
         }
 
         .tooltip.tooltip-end.tooltip-below .tooltip-text::after {
@@ -200,7 +332,7 @@
             margin-left: -5px;
             border-width: 5px;
             border-style: solid;
-            border-color: #334155 transparent transparent transparent;
+            border-color: var(--border) transparent transparent transparent;
         }
 
         .tooltip:hover .tooltip-text {
@@ -212,9 +344,9 @@
             width: 100%;
             padding: 0.75rem;
             border-radius: 0.75rem;
-            border: 1px solid #334155;
-            background: #0f172a;
-            color: white;
+            border: 1px solid var(--border);
+            background: var(--input-bg);
+            color: var(--input-text);
             font-size: 1rem;
             box-sizing: border-box;
             outline: none;
@@ -242,7 +374,7 @@
             margin: 0;
             cursor: pointer;
             font-size: 0.85rem;
-            color: #94a3b8;
+            color: var(--text-muted);
         }
 
         .fee-switch-row {
@@ -255,7 +387,7 @@
 
         .fee-switch-row .fee-switch-label {
             font-size: 0.85rem;
-            color: #cbd5e1;
+            color: var(--text-secondary);
             margin: 0;
             flex: 1;
         }
@@ -279,7 +411,7 @@
             position: absolute;
             cursor: pointer;
             inset: 0;
-            background-color: #334155;
+            background-color: var(--switch-track);
             border-radius: 24px;
             transition: background-color 0.2s;
         }
@@ -291,7 +423,7 @@
             width: 18px;
             left: 3px;
             bottom: 3px;
-            background-color: #f8fafc;
+            background-color: var(--switch-thumb);
             border-radius: 50%;
             transition: transform 0.2s;
         }
@@ -312,7 +444,7 @@
         .dashboard-box {
             margin-top: 1.25rem;
             padding: 1rem;
-            background: rgba(15, 23, 42, 0.75);
+            background: var(--surface-elevated);
             border: 1px solid var(--secondary);
             border-radius: 1rem;
             overflow: visible;
@@ -332,13 +464,13 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 0.8rem;
-            color: #cbd5e1;
+            color: var(--text-secondary);
         }
 
         .dashboard-table th,
         .dashboard-table td {
             padding: 0.45rem 0.35rem;
-            border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+            border-bottom: 1px solid var(--border-soft);
             text-align: right;
         }
 
@@ -348,7 +480,7 @@
         }
 
         .dashboard-table th {
-            color: #94a3b8;
+            color: var(--text-muted);
             font-weight: 600;
             font-size: 0.68rem;
             text-transform: uppercase;
@@ -366,7 +498,7 @@
 
         .dashboard-note {
             font-size: 0.68rem;
-            color: #64748b;
+            color: var(--text-faint);
             margin-top: 0.65rem;
             line-height: 1.4;
         }
@@ -375,7 +507,7 @@
             font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            color: #64748b;
+            color: var(--text-faint);
             margin: 0.25rem 0 0.75rem 0;
         }
 
@@ -387,7 +519,7 @@
             letter-spacing: 0.1em;
             margin: 1.35rem 0 0.5rem 0;
             padding-bottom: 0.35rem;
-            border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+            border-bottom: 1px solid var(--border-section);
         }
 
         .section-head:first-of-type {
@@ -396,17 +528,63 @@
 
         .key-legend {
             font-size: 0.68rem;
-            color: #64748b;
+            color: var(--text-faint);
             line-height: 1.5;
             margin-top: 1rem;
             padding: 0.65rem 0.75rem;
-            background: rgba(15, 23, 42, 0.45);
+            background: var(--surface-inset);
             border-radius: 0.5rem;
-            border: 1px solid rgba(51, 65, 85, 0.5);
+            border: 1px solid var(--border-section);
         }
 
         .key-legend strong {
-            color: #94a3b8;
+            color: var(--text-muted);
+        }
+
+        .dyn-muted {
+            color: var(--text-muted);
+        }
+
+        .dyn-soft {
+            color: var(--text-secondary);
+        }
+
+        .dyn-hint {
+            color: var(--text-faint);
+        }
+
+        .label-hint {
+            font-weight: normal;
+            color: var(--text-faint);
+        }
+
+        .timeline-sub {
+            font-size: 0.8em;
+            color: var(--text-muted);
+        }
+
+        .timeline-sub-soft {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+        }
+
+        .timeline-caption {
+            font-size: 0.82em;
+            color: var(--text-muted);
+        }
+
+        .consistency-cap-detail {
+            font-size: 0.8em;
+            color: var(--text-muted);
+        }
+
+        .risk-detail {
+            color: var(--text-muted);
+            font-weight: normal;
+        }
+
+        .total-payout-box.muted-border {
+            border-color: var(--payout-box-muted-border);
         }
 
         .results-grid {
@@ -424,7 +602,7 @@
 
         .result-card {
             padding: 1rem;
-            background: linear-gradient(to bottom right, #1e293b, #0f172a);
+            background: linear-gradient(to bottom right, var(--card-gradient-start), var(--card-gradient-end));
             border: 1px solid var(--secondary);
             border-radius: 1rem;
             text-align: center;
@@ -442,7 +620,7 @@
         /* Net after profit split row — violet / indigo accent */
         .result-card.result-net-split {
             border-color: rgba(167, 139, 250, 0.45);
-            background: linear-gradient(145deg, rgba(109, 40, 217, 0.2), rgba(15, 23, 42, 0.96));
+            background: linear-gradient(145deg, var(--net-split-tint), var(--net-split-tint-end));
         }
 
         .result-card.result-net-split.highlight {
@@ -452,7 +630,7 @@
 
         .result-card.result-net-split.negative {
             border-color: var(--danger);
-            background: linear-gradient(145deg, rgba(127, 29, 29, 0.35), rgba(15, 23, 42, 0.96));
+            background: linear-gradient(145deg, rgba(127, 29, 29, 0.35), var(--negative-tint));
         }
 
         .result-card.result-net-split.highlight.negative {
@@ -477,7 +655,7 @@
 
         .result-card.after-fee {
             border-color: #22c55e;
-            background: linear-gradient(to bottom right, rgba(34, 197, 94, 0.14), rgba(15, 23, 42, 0.9));
+            background: linear-gradient(to bottom right, rgba(34, 197, 94, 0.14), var(--negative-tint));
         }
 
         .result-card.after-fee.highlight {
@@ -487,7 +665,7 @@
 
         .result-card.after-fee.negative {
             border-color: var(--danger);
-            background: linear-gradient(to bottom right, rgba(239, 68, 68, 0.18), rgba(15, 23, 42, 0.9));
+            background: linear-gradient(to bottom right, rgba(239, 68, 68, 0.18), var(--negative-tint));
         }
 
         .result-card.after-fee.highlight.negative {
@@ -498,8 +676,12 @@
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            color: #cbd5e1;
+            color: var(--text-secondary);
             margin-bottom: 0.5rem;
+        }
+
+        .result-label.muted {
+            color: var(--text-muted);
         }
 
         .highlight .result-label {
@@ -518,10 +700,10 @@
         .per-account-section {
             margin-top: 1.5rem;
             padding: 1rem;
-            background: rgba(15, 23, 42, 0.5);
+            background: var(--surface-inset);
             border-radius: 0.75rem;
             text-align: center;
-            border: 1px solid #334155;
+            border: 1px solid var(--border);
             transition: border-color 0.3s ease;
         }
 
@@ -535,7 +717,7 @@
 
         .per-account-title {
             font-size: 0.8rem;
-            color: #94a3b8;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.05em;
             margin-bottom: 0.75rem;
@@ -551,7 +733,7 @@
 
         .per-account-stats {
             font-size: 0.9rem;
-            color: #cbd5e1;
+            color: var(--text-secondary);
             display: flex;
             justify-content: space-around;
             flex-wrap: wrap;
@@ -566,9 +748,9 @@
         .one-time-box {
             margin-top: 1rem;
             padding: 1rem;
-            background: rgba(15, 23, 42, 0.6);
+            background: var(--surface-panel);
             border-radius: 0.75rem;
-            border: 1px solid #334155;
+            border: 1px solid var(--border);
             text-align: center;
         }
 
@@ -582,7 +764,7 @@
             flex-wrap: wrap;
             gap: 0.75rem;
             font-size: 0.9rem;
-            color: #cbd5e1;
+            color: var(--text-secondary);
         }
 
         .one-time-rows strong {
@@ -592,7 +774,7 @@
         .effective-monthly-box {
             margin-top: 1rem;
             padding: 1rem;
-            background: linear-gradient(to right, #1e293b, #0f172a);
+            background: linear-gradient(to right, var(--card-gradient-start), var(--card-gradient-end));
             border-radius: 0.75rem;
             border: 1px solid var(--secondary);
             text-align: center;
@@ -604,7 +786,7 @@
 
         .costs-footnote {
             font-size: 0.72rem;
-            color: #64748b;
+            color: var(--text-faint);
             line-height: 1.4;
             margin-top: 0.75rem;
             text-align: left;
@@ -612,8 +794,8 @@
 
         .payout-planner, .costs-phase, .core-edge {
             margin-top: 1.5rem;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid #334155;
+            background: var(--surface-panel);
+            border: 1px solid var(--border);
             border-radius: 1rem;
             overflow: visible;
             transition: all 0.3s ease;
@@ -653,7 +835,7 @@
 
         .planner-content {
             padding: 0 1rem 1rem 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 1px solid var(--planner-divider);
             margin-top: 0.5rem;
             padding-top: 1rem;
         }
@@ -701,23 +883,23 @@
         .timeline-banner {
             font-size: 0.78rem;
             line-height: 1.45;
-            color: #94a3b8;
-            background: rgba(15, 23, 42, 0.65);
-            border: 1px solid #334155;
+            color: var(--text-muted);
+            background: var(--timeline-banner-bg);
+            border: 1px solid var(--border);
             border-radius: 0.75rem;
             padding: 0.75rem 1rem;
             margin-bottom: 1rem;
         }
 
         .timeline-banner strong {
-            color: #e2e8f0;
+            color: var(--timeline-value);
         }
 
         .payout-card {
-            background: #0f172a;
+            background: var(--payout-card-bg);
             padding: 1rem;
             border-radius: 0.75rem;
-            border: 1px solid #1e293b;
+            border: 1px solid var(--payout-card-border);
             text-align: center;
         }
 
@@ -728,8 +910,8 @@
         .payout-card.timeline-card {
             text-align: left;
             padding: 1.15rem 1.25rem;
-            border: 1px solid rgba(58, 123, 213, 0.45);
-            background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.55));
+            border: 1px solid var(--timeline-card-border);
+            background: var(--timeline-card-bg);
         }
 
         .payout-card.timeline-card .result-label {
@@ -745,7 +927,7 @@
 
         .total-payout-box {
             margin-top: 1rem;
-            background: linear-gradient(to right, #1e293b, #0f172a);
+            background: var(--payout-box-bg);
             padding: 1rem;
             border-radius: 0.75rem;
             border: 1px solid var(--secondary);
@@ -760,7 +942,7 @@
             gap: 1rem;
             font-size: 0.85rem;
             margin-top: 0.8rem;
-            color: #cbd5e1;
+            color: var(--text-secondary);
         }
 
         .payout-column {
@@ -810,7 +992,7 @@
 
         .consistency-note {
             font-size: 0.78rem;
-            color: #94a3b8;
+            color: var(--text-muted);
             line-height: 1.45;
             margin-top: 0.65rem;
         }
@@ -821,15 +1003,15 @@
             padding: 0.65rem 0.85rem;
             border-radius: 0.5rem;
             border: 1px solid var(--danger);
-            background: rgba(127, 29, 29, 0.4);
-            color: #fecaca;
+            background: var(--alert-bg);
+            color: var(--alert-text);
             font-size: 0.82rem;
             line-height: 1.5;
             text-align: left;
         }
 
         .consistency-alert strong {
-            color: #f87171;
+            color: var(--alert-strong);
         }
 
         #consistencyResultsBox.consistency-alert-active {
@@ -837,7 +1019,7 @@
         }
 
         .consistency-off-msg {
-            color: #64748b;
+            color: var(--text-faint);
             font-size: 0.85rem;
             line-height: 1.45;
         }
@@ -845,17 +1027,17 @@
         .dashboard-table tr.rb-group-head td {
             font-size: 0.72rem;
             font-weight: 600;
-            color: #94a3b8;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.055em;
             padding-top: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            border-bottom: 1px solid var(--planner-divider);
         }
 
         .spend-table-title {
             font-size: 0.72rem;
             font-weight: 600;
-            color: #94a3b8;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.055em;
             margin: 1.1rem 0 0.45rem 0;
@@ -876,13 +1058,18 @@
             text-align: center;
             margin-top: 1.5rem;
             font-size: 0.75rem;
-            color: #64748b;
+            color: var(--text-faint);
             transition: color 0.3s;
             line-height: 1.45;
         }
     </style>
 </head>
-<body onload="onAccountModeToggles(); onConsistencyToggles(); calculate();">
+<body onload="initTheme(); onAccountModeToggles(); onConsistencyToggles(); calculate();">
+
+<button type="button" class="theme-toggle" id="themeToggle" aria-label="Switch to light mode">
+    <span class="theme-toggle-icon" id="themeToggleIcon" aria-hidden="true">☀</span>
+    <span class="theme-toggle-label" id="themeToggleLabel">Light</span>
+</button>
 
 <div class="container">
 
@@ -917,7 +1104,7 @@
     <div class="input-grid">
         <div class="input-group">
             <label for="tradingDays">
-                Trading days per month <span style="font-weight:normal;color:#64748b">(max 21)</span>
+                Trading days per month <span class="label-hint">(max 21)</span>
                 <div class="tooltip tooltip-below">?<span class="tooltip-text">Average number of days per month you expect to trade (capped at 21). Converts daily $ into a &quot;trading month&quot; and yearly estimate.</span></div>
             </label>
             <input type="number" id="tradingDays" placeholder="e.g. 21" value="21" max="21" oninput="calculate()">
@@ -1114,8 +1301,8 @@
             <p class="consistency-note" id="consistencyResultsNote"></p>
         </div>
 
-        <div class="total-payout-box" style="border-color: #334155;">
-            <div class="result-label" style="color: #94a3b8;">Risk management metric</div>
+        <div class="total-payout-box muted-border">
+            <div class="result-label muted">Risk management metric</div>
             <div class="payout-split-info">
                 <div>Consecutive losses to liquidate (est.): <strong id="consecutiveLosses" style="color: var(--danger);">—</strong></div>
             </div>
@@ -1271,6 +1458,40 @@
 </div>
 
 <script>
+    function getTheme() {
+        return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+    }
+
+    function updateThemeToggleUi() {
+        const isLight = getTheme() === 'light';
+        const icon = document.getElementById('themeToggleIcon');
+        const label = document.getElementById('themeToggleLabel');
+        const btn = document.getElementById('themeToggle');
+        if (icon) icon.textContent = isLight ? '☾' : '☀';
+        if (label) label.textContent = isLight ? 'Dark' : 'Light';
+        if (btn) {
+            btn.setAttribute('aria-label', isLight ? 'Switch to dark mode' : 'Switch to light mode');
+            btn.title = isLight ? 'Dark mode' : 'Light mode';
+        }
+    }
+
+    function initTheme() {
+        const stored = localStorage.getItem('propPlannerTheme');
+        if (stored === 'light' || stored === 'dark') {
+            document.documentElement.setAttribute('data-theme', stored);
+        }
+        updateThemeToggleUi();
+        const btn = document.getElementById('themeToggle');
+        if (btn) btn.addEventListener('click', toggleTheme);
+    }
+
+    function toggleTheme() {
+        const next = getTheme() === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('propPlannerTheme', next);
+        updateThemeToggleUi();
+    }
+
     function formatTradingDuration(tradingDays, tradingDaysPerMonth) {
         if (tradingDays == null || !Number.isFinite(tradingDays) || tradingDays < 0) return '—';
         const perMonth = tradingDaysPerMonth > 0 ? tradingDaysPerMonth : 21;
@@ -1719,22 +1940,22 @@
         const timeRecEl = document.getElementById('timeToRecurring');
 
         if (evalProfitTarget <= 0) {
-            timeEvalEl.innerHTML = '<span style="color:#64748b;">Set evaluation profit target in Firm and fees</span>';
+            timeEvalEl.innerHTML = '<span class="dyn-hint">Set evaluation profit target in Firm and fees</span>';
         } else if (evPerAccount <= 0) {
             timeEvalEl.innerHTML = 'Not available (expected gross per trading day is zero or negative)';
         } else {
             let evHtml = `<span style="font-size:1.02rem;font-weight:800;">${formatTradingDuration(evalDaysPass, TRADING_DAYS_MONTH)}</span>`;
-            evHtml += `<br><span style="font-size:0.8em;color:#94a3b8;">Gross edge to pass evaluation</span>`;
-            evHtml += `<br><span style="font-size:0.8em;color:#cbd5e1;">About <strong>${evalSubBillPeriods}</strong> calendar month(s) of account fee (estimate)</span>`;
+            evHtml += `<br><span class="timeline-sub">Gross edge to pass evaluation</span>`;
+            evHtml += `<br><span class="timeline-sub-soft">About <strong>${evalSubBillPeriods}</strong> calendar month(s) of account fee (estimate)</span>`;
             if (accountFeeRecurring && monthlyAcctFee > 0 && accounts > 0) {
-                evHtml += `<br><span style="font-size:0.8em;color:#94a3b8;">Estimated account fees until pass: ${formatter.format(evalSubCostDuringEval)}</span>`;
+                evHtml += `<br><span class="timeline-sub">Estimated account fees until pass: ${formatter.format(evalSubCostDuringEval)}</span>`;
             }
             timeEvalEl.innerHTML = evHtml;
         }
 
         if (evPerAccountFunded > 0 && daysToFirstFunded != null) {
             let firstText = `<span style="font-size:1.02rem;font-weight:800;">${formatTradingDuration(daysToFirstFunded, TRADING_DAYS_MONTH)}</span>`;
-            firstText += `<br><span style="font-size: 0.8em; color: #94a3b8;">Buffer plus first payout, gross, funded account from zero`;
+            firstText += `<br><span class="timeline-sub">Buffer plus first payout, gross, funded account from zero`;
             if (!directToFunded && scalingPlanPct < 100) {
                 firstText += ` (at <strong>${scalingPlanPct}%</strong> scaling vs eval)`;
             }
@@ -1743,11 +1964,11 @@
 
             let recText;
             if (recurringPayout <= 0) {
-                recText = '<span style="color:#64748b;">Set recurring payout amount in dollars</span>';
+                recText = '<span class="dyn-hint">Set recurring payout amount in dollars</span>';
             } else {
                 const recMo = (daysToRecurringFunded / TRADING_DAYS_MONTH).toFixed(1);
                 recText = `<span style="font-size:1.02rem;font-weight:800;">Every ${daysToRecurringFunded} trading days</span>`;
-                recText += `<br><span style="font-size: 0.82em; color: #94a3b8;">About ${recMo} months between gross withdrawals on funded`;
+                recText += `<br><span class="timeline-caption">About ${recMo} months between gross withdrawals on funded`;
                 if (!directToFunded && scalingPlanPct < 100) {
                     recText += ` (at <strong>${scalingPlanPct}%</strong> scaling)`;
                 }
@@ -1766,7 +1987,7 @@
         const riskEl = document.getElementById('consecutiveLosses');
         if (lossFunded > 0 && maxDrawdown > 0) {
             const daysToBlow = Math.floor(maxDrawdown / lossFunded);
-            riskEl.innerHTML = `${formatTradingDuration(daysToBlow, TRADING_DAYS_MONTH)} <span style="color:#94a3b8;font-weight:normal;">losing trading days in a row (estimate, funded avg loss${!directToFunded && scalingPlanPct < 100 ? ` at ${scalingPlanPct}% scale` : ''})</span>`;
+            riskEl.innerHTML = `${formatTradingDuration(daysToBlow, TRADING_DAYS_MONTH)} <span class="risk-detail">losing trading days in a row (estimate, funded avg loss${!directToFunded && scalingPlanPct < 100 ? ` at ${scalingPlanPct}% scale` : ''})</span>`;
         } else {
             riskEl.innerText = 'Not available';
         }
@@ -1804,9 +2025,9 @@
                 colFirst += '<div class="payout-header">1st payout cap</div>';
                 if (firstPayout > 0) {
                     colFirst += `<div>Max gross per trading day: <strong>${formatter.format(maxFirstGross)}</strong></div>`;
-                    colFirst += `<div style="font-size:0.8em;color:#94a3b8;">${pctLabel}% of <strong>${formatter.format(firstPayout)}</strong> gross first payout (Payouts)</div>`;
+                    colFirst += `<div class="consistency-cap-detail">${pctLabel}% of <strong>${formatter.format(firstPayout)}</strong> gross first payout (Payouts)</div>`;
                 } else {
-                    colFirst += '<div style="color:#64748b;">Set first payout ($, gross) in Payouts</div>';
+                    colFirst += '<div class="dyn-hint">Set first payout ($, gross) in Payouts</div>';
                 }
                 colFirst += '</div>';
 
@@ -1814,9 +2035,9 @@
                 colRec += '<div class="payout-header">Recurring cap</div>';
                 if (recurringPayout > 0) {
                     colRec += `<div>Max gross per trading day: <strong>${formatter.format(maxRecurringGross)}</strong></div>`;
-                    colRec += `<div style="font-size:0.8em;color:#94a3b8;">${pctLabel}% of <strong>${formatter.format(recurringPayout)}</strong> gross recurring payout (Payouts)</div>`;
+                    colRec += `<div class="consistency-cap-detail">${pctLabel}% of <strong>${formatter.format(recurringPayout)}</strong> gross recurring payout (Payouts)</div>`;
                 } else {
-                    colRec += '<div style="color:#64748b;">Set recurring payout in Payouts</div>';
+                    colRec += '<div class="dyn-hint">Set recurring payout in Payouts</div>';
                 }
                 colRec += '</div>';
 
