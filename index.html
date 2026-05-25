@@ -1326,7 +1326,7 @@
             const actOn = actToggle.checked;
             actInput.disabled = !actOn;
             actGroup.classList.toggle('disabled-field', !actOn);
-            if (actSwitchRow) actSwitchRow.classList.toggle('disabled-field', !actOn);
+            if (actSwitchRow) actSwitchRow.classList.remove('disabled-field');
         }
     }
 
