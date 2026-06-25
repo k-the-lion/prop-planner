@@ -973,8 +973,13 @@
         }
 
         .payout-timeline-block,
-        .consistency-risk-block {
+        .consistency-risk-block,
+        .net-split-summary-block {
             margin-top: 1.5rem;
+        }
+
+        .net-split-summary-block .results-grid {
+            margin-top: 0.75rem;
         }
 
         .payout-timeline-block .section-head,
@@ -1256,6 +1261,25 @@
         </div>
     </details>
 
+    <div class="net-split-summary-block">
+        <div class="section-label" id="netAfterSplitSectionLabel">Net after profit split</div>
+        <p class="dashboard-note" id="resultsNetSplitCaption" style="margin: 0.35rem 0 0;">Your share after the firm’s profit split (no account fees yet).</p>
+        <div class="results-grid">
+            <div class="result-card result-net-split" id="cardDaily">
+                <div class="result-label">Daily</div>
+                <div class="result-value" id="dailyResult">$0</div>
+            </div>
+            <div class="result-card result-net-split" id="cardMonthly">
+                <div class="result-label">Monthly</div>
+                <div class="result-value" id="monthlyResult">$0</div>
+            </div>
+            <div class="result-card result-net-split highlight" id="cardAnnual">
+                <div class="result-label">Annual</div>
+                <div class="result-value" id="annualResult">$0</div>
+            </div>
+        </div>
+    </div>
+
     <div class="payout-timeline-block">
         <div class="section-head">Payout timeline</div>
         <p class="dashboard-note" style="margin: 0 0 0.75rem;">Uses buffer and payout amounts from <strong>Payouts &amp; drawdown risk</strong>. Net take-home is in <strong>Results breakdown</strong>.</p>
@@ -1311,24 +1335,7 @@
 
     <div class="section-head">3 · Results</div>
 
-    <div class="section-label" id="netAfterSplitSectionLabel">Net after profit split</div>
-    <p class="dashboard-note" id="resultsNetSplitCaption" style="margin: 0.35rem 0 0.75rem;">Your share after the firm’s profit split (no account fees yet).</p>
-    <div class="results-grid">
-        <div class="result-card result-net-split" id="cardDaily">
-            <div class="result-label">Daily</div>
-            <div class="result-value" id="dailyResult">$0</div>
-        </div>
-        <div class="result-card result-net-split" id="cardMonthly">
-            <div class="result-label">Monthly</div>
-            <div class="result-value" id="monthlyResult">$0</div>
-        </div>
-        <div class="result-card result-net-split highlight" id="cardAnnual">
-            <div class="result-label">Annual</div>
-            <div class="result-value" id="annualResult">$0</div>
-        </div>
-    </div>
-
-    <div class="dashboard-box" id="resultsBreakdown" style="margin-top: 1rem;">
+    <div class="dashboard-box" id="resultsBreakdown" style="margin-top: 0.5rem;">
         <div class="dashboard-title">Results breakdown</div>
         <table class="dashboard-table" aria-label="Results per account and all accounts">
             <thead>
