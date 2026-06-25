@@ -526,6 +526,36 @@
             margin-top: 0.25rem;
         }
 
+        .group-head {
+            font-size: 0.82rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin: 1.5rem 0 0.25rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid var(--border-section);
+        }
+
+        .group-head.config-head {
+            color: var(--primary);
+        }
+
+        .group-head.results-head {
+            color: var(--secondary);
+        }
+
+        .group-note {
+            font-size: 0.68rem;
+            color: var(--text-faint);
+            margin: 0 0 0.65rem;
+            line-height: 1.45;
+        }
+
+        .planner-group > .costs-phase:first-of-type,
+        .planner-group > .results-phase:first-of-type {
+            margin-top: 0;
+        }
+
         .key-legend {
             font-size: 0.68rem;
             color: var(--text-faint);
@@ -792,7 +822,7 @@
             text-align: left;
         }
 
-        .payout-planner, .costs-phase, .core-edge {
+        .payout-planner, .costs-phase, .core-edge, .results-phase {
             margin-top: 1.5rem;
             background: var(--surface-panel);
             border: 1px solid var(--border);
@@ -801,7 +831,7 @@
             transition: all 0.3s ease;
         }
 
-        .payout-planner summary, .costs-phase summary, .core-edge summary {
+        .payout-planner summary, .costs-phase summary, .core-edge summary, .results-phase summary {
             padding: 1rem;
             cursor: pointer;
             font-size: 0.9rem;
@@ -814,13 +844,15 @@
 
         .payout-planner summary::-webkit-details-marker,
         .costs-phase summary::-webkit-details-marker,
-        .core-edge summary::-webkit-details-marker {
+        .core-edge summary::-webkit-details-marker,
+        .results-phase summary::-webkit-details-marker {
             display: none;
         }
 
         .payout-planner summary::before,
         .costs-phase summary::before,
-        .core-edge summary::before {
+        .core-edge summary::before,
+        .results-phase summary::before {
             content: '▶ ';
             display: inline-block;
             margin-right: 0.5rem;
@@ -829,7 +861,8 @@
 
         .payout-planner[open] summary::before,
         .costs-phase[open] summary::before,
-        .core-edge[open] summary::before {
+        .core-edge[open] summary::before,
+        .results-phase[open] summary::before {
             transform: rotate(90deg);
         }
 
@@ -969,29 +1002,25 @@
         }
 
         .core-edge {
-            margin-top: 1rem;
+            margin-top: 0;
         }
 
-        .payout-timeline-block,
-        .consistency-risk-block,
-        .net-split-summary-block {
-            margin-top: 1.5rem;
+        .results-phase .results-grid {
+            margin-top: 0.5rem;
         }
 
-        .net-split-summary-block .results-grid {
-            margin-top: 0.75rem;
+        .results-phase .dashboard-box {
+            margin-top: 0;
+            padding: 0;
+            background: transparent;
+            border: none;
         }
 
-        .payout-timeline-block .section-head,
-        .consistency-risk-block .section-head {
-            margin-bottom: 0.75rem;
-        }
-
-        .payout-timeline-block .timeline-banner {
+        .results-phase .timeline-banner {
             margin-bottom: 0.5rem;
         }
 
-        .consistency-risk-block .total-payout-box + .total-payout-box {
+        .results-phase .total-payout-box + .total-payout-box {
             margin-top: 0.85rem;
         }
 
@@ -1084,6 +1113,10 @@
         Prop Planner
         <div class="tooltip">?<span class="tooltip-text">Disclaimer: This is a planning tool and does not model firm-specific payout eligibility rules or complex trailing drawdown mechanics.</span></div>
     </h2>
+
+    <div class="planner-group config-group">
+        <div class="group-head config-head">Configuration</div>
+        <p class="group-note">Enter your trading assumptions and firm settings. Expand each section to edit.</p>
 
     <details class="costs-phase core-edge" open>
         <summary>1 · Core Trading Edge</summary>
@@ -1220,8 +1253,8 @@
         </div>
     </details>
 
-    <details class="payout-planner">
-        <summary>Payouts &amp; drawdown risk</summary>
+    <details class="costs-phase payout-planner">
+        <summary>3 · Payouts &amp; drawdown risk</summary>
         <div class="planner-content">
 
             <div class="input-grid">
@@ -1261,9 +1294,16 @@
         </div>
     </details>
 
-    <div class="net-split-summary-block">
-        <div class="section-label" id="netAfterSplitSectionLabel">Net after profit split</div>
-        <p class="dashboard-note" id="resultsNetSplitCaption" style="margin: 0.35rem 0 0;">Your share after the firm’s profit split (no account fees yet).</p>
+    </div>
+
+    <div class="planner-group results-group">
+        <div class="group-head results-head">Results</div>
+        <p class="group-note">Estimates from your configuration. Expand any section for timelines, payouts, and fees.</p>
+
+    <details class="results-phase" open>
+        <summary id="netAfterSplitSectionLabel">Net after profit split</summary>
+        <div class="planner-content">
+        <p class="dashboard-note" id="resultsNetSplitCaption" style="margin: 0;">Your share after the firm’s profit split (no account fees yet).</p>
         <div class="results-grid">
             <div class="result-card result-net-split" id="cardDaily">
                 <div class="result-label">Daily</div>
@@ -1278,11 +1318,13 @@
                 <div class="result-value" id="annualResult">$0</div>
             </div>
         </div>
-    </div>
+        </div>
+    </details>
 
-    <div class="payout-timeline-block">
-        <div class="section-head">Payout timeline</div>
-        <p class="dashboard-note" style="margin: 0 0 0.75rem;">Uses buffer and payout amounts from <strong>Payouts &amp; drawdown risk</strong>. Net take-home is in <strong>Results breakdown</strong>.</p>
+    <details class="results-phase">
+        <summary>Payout timeline</summary>
+        <div class="planner-content">
+        <p class="dashboard-note" style="margin: 0 0 0.75rem;">Uses buffer and payout amounts from <strong>3 · Payouts &amp; drawdown risk</strong>. Net take-home is in <strong>Results breakdown</strong>.</p>
 
         <div class="timeline-banner" id="timelineBanner">
             <strong>Funded account starts at zero:</strong> After you pass, the funded account is modeled from <strong>$0</strong> gross profit. Buffer and first payout only build from <strong>new</strong> funded gross edge. Evaluation length uses the <strong>evaluation profit target</strong> in Firm and fees. Activation (if any) is money at pass, not during the evaluation.<span id="timelineScalingHint"></span>
@@ -1310,11 +1352,13 @@
                 <div class="result-value" id="timeToRecurring">—</div>
             </div>
         </div>
-    </div>
+        </div>
+    </details>
 
-    <div class="consistency-risk-block">
-        <div class="section-head">Funded consistency &amp; risk</div>
-        <p class="dashboard-note" style="margin: 0 0 0.75rem;">Consistency inputs are in <strong>Firm and fees</strong>. Caps use gross payouts from <strong>Payouts &amp; drawdown risk</strong>; net take-home is in <strong>Results breakdown</strong>.</p>
+    <details class="results-phase">
+        <summary>Funded consistency &amp; risk</summary>
+        <div class="planner-content">
+        <p class="dashboard-note" style="margin: 0 0 0.75rem;">Consistency inputs are in <strong>2 · Firm and fees</strong>. Caps use gross payouts from <strong>3 · Payouts &amp; drawdown risk</strong>; net take-home is in <strong>Results breakdown</strong>.</p>
 
         <div class="total-payout-box" id="consistencyResultsBox">
             <div class="result-label">Consistency rule (funded payouts)</div>
@@ -1331,12 +1375,13 @@
                 <div>Consecutive losses to liquidate (est.): <strong id="consecutiveLosses" style="color: var(--danger);">—</strong></div>
             </div>
         </div>
-    </div>
+        </div>
+    </details>
 
-    <div class="section-head">3 · Results</div>
-
-    <div class="dashboard-box" id="resultsBreakdown" style="margin-top: 0.5rem;">
-        <div class="dashboard-title">Results breakdown</div>
+    <details class="results-phase">
+        <summary>Results breakdown</summary>
+        <div class="planner-content">
+    <div class="dashboard-box" id="resultsBreakdown">
         <table class="dashboard-table" aria-label="Results per account and all accounts">
             <thead>
                 <tr>
@@ -1378,11 +1423,13 @@
         </table>
         <p class="dashboard-note" id="resultsBreakdownNote"><strong>Net after split</strong> and <strong>payout take-home</strong> use profit split and payout amounts from Firm and fees / Payouts. Funded trading rows use your <strong>scaling plan</strong>. Firm charges are in <strong>Spend planner</strong>.</p>
     </div>
+        </div>
+    </details>
 
-    <div class="section-head">4 · Spending and timeline</div>
-
+    <details class="results-phase">
+        <summary>Spend planner</summary>
+        <div class="planner-content">
     <div class="dashboard-box" id="costsDashboard">
-        <div class="dashboard-title">Spend planner</div>
         <p class="dashboard-note" style="margin-top: 0.35rem;">Rows show only when they apply to your settings. Timelines (no per-account split) are separate from dollar fees.</p>
 
         <div class="spend-table-title" id="spendPlanTitle">Plan &amp; timeline</div>
@@ -1453,6 +1500,10 @@
         <p class="dashboard-note" id="spActivationFootnote" style="margin-top: 0.5rem;">Activation is due when you pass—not bundled into &quot;first evaluation month&quot; subscription cash.</p>
         <p class="prop-fees-warn" id="propFeesWarn" style="display: none;"></p>
         <p class="dashboard-note" id="dashboardNote"></p>
+    </div>
+        </div>
+    </details>
+
     </div>
 
     <div class="key-legend" id="keyLegend">
